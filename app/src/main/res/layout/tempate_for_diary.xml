@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:orientation="vertical" android:layout_width="match_parent"
+android:layout_height="match_parent">
+    <ImageView
+        android:id="@+id/diary_imageTemplate_1"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:src="@drawable/background"
+        android:scaleType="centerCrop"/>
+    <ImageView
+        android:id="@+id/diary_imageTemplate_2"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:src="@drawable/image_square"/>
+    <TextView
+        android:id="@+id/diary_textTemplate_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"/>
+
+</LinearLayout>
