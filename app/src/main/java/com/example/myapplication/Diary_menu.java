@@ -11,14 +11,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Diary_menu extends AppCompatActivity {
-
+//sdfkdslfjs
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diary_menu);
 
         RecyclerView menuRecyclerView=findViewById(R.id.diary_menu_recyclerView);
-        List<DriveDiaryMenu> list = new ArrayList<DriveDiaryMenu>();
+        List<DriveDiaryMenu> list = new ArrayList<>();
 
         DriveDiaryMenu vo = new DriveDiaryMenu();
         vo.title= getResources().getString(R.string.diary_text_title);
