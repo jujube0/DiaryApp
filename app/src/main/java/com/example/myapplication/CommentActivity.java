@@ -3,10 +3,15 @@ package com.example.myapplication;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.icu.text.SimpleDateFormat;
 import android.icu.text.Transliterator;
 import android.os.Bundle;
 import android.text.Layout;
@@ -14,12 +19,17 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,70 +37,48 @@ import org.w3c.dom.Comment;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.zip.Inflater;
 
-public class CommentActivity extends AppCompatActivity {
+public class CommentActivity extends AppCompatActivity implements View.OnClickListener, CommentAdapter.OnRecommentListener {
 
     ExpandableListView comment_listView;
+    Button add_comment;
+    EditText comment_text;
+    RelativeLayout comment_layout;
+
+    TextView delete_comment;
+    TextView recomment_info;
+    NestedScrollView scrollView;
+    String name;
+
+
+    ArrayList<DriveComment> parentData = new ArrayList<>();
+    ArrayList<ArrayList<DriveComment>> childData = new ArrayList<>();
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comment);
         comment_listView = findViewById(R.id.diary_comment_content_list);
+        add_comment=findViewById(R.id.comment_btn_addcomment);
+        comment_text=findViewById(R.id.comment_edit_text);
+        add_comment.setOnClickListener(this);
+
+        comment_layout = findViewById(R.id.diary_comment_layout_recomment_info);
+        recomment_info=findViewById(R.id.diary_comment_recomment_info);
+        scrollView=findViewById(R.id.diary_comment_scrollView);
+        name = getResources().getString(R.string.id);
 
 
-        ArrayList<DriveComment> parentData = new ArrayList<>();
-        ArrayList<ArrayList<DriveComment>> childData = new ArrayList<>();
-
-        DriveComment vo = new DriveComment();
-
-        HashMap<String, String> data = new HashMap<>();
-        vo = new DriveComment();
-        data.put("name", "사용자1");
-        data.put("comment", "안녕하세요");
-        vo.comment = data;
-        parentData.add(vo);
-
-        data = new HashMap<>();
-        vo = new DriveComment();
-        data.put("name", "사용자2");
-        data.put("comment", getString(R.string.text));
-        vo.comment = data;
-        parentData.add(vo);
-
-        ArrayList<DriveComment> parentComment = new ArrayList<>();
-        vo = new DriveComment();
-        data = new HashMap<>();
-        data.put("name", "사용자3");
-        data.put("comment", "사용자 1의 댓글에 대한 대댓글입니다.");
-        vo.comment = data;
-        parentComment.add(vo);
-
-        data = new HashMap<>();
-        vo = new DriveComment();
-        data.put("name", "사용자4");
-        data.put("comment", "사용자 1의 댓글에 대한 대댓글2입니다.");
-        vo.comment = data;
-        parentComment.add(vo);
-        childData.add(parentComment);
 
 
-        data = new HashMap<>();
-        vo = new DriveComment();
-        parentComment = new ArrayList<>();
-        data.put("name", "사용자6");
-        data.put("comment", "사용자 2의 댓글에 대한 대댓글2입니다.");
-        vo.comment = data;
-        parentComment.add(vo);
-        childData.add(parentComment);
-
-
-        CommentAdapter adapter = new CommentAdapter(this, parentData, childData);
+        CommentAdapter adapter = new CommentAdapter(this, this, name);
         comment_listView.setAdapter(adapter);
-
 
 
         comment_listView.setOnTouchListener(new View.OnTouchListener() {
@@ -98,131 +86,105 @@ public class CommentActivity extends AppCompatActivity {
             public boolean onTouch(View v, MotionEvent event) {
                 return true;
             }
-        });;
+        });
 
 
     }
+    @Override
+    public void onClick(View v) {
+        if(v == add_comment){
+            if(comment_layout.getVisibility()==View.GONE){
+                String comment = comment_text.getText().toString();
 
-    public class CommentAdapter extends BaseExpandableListAdapter {
-        Context context;
 
-        ArrayList<DriveComment> parentData = new ArrayList<>();
-        ArrayList<ArrayList<DriveComment>> childData = new ArrayList<>();
+                if(!comment.equals("")) {
 
-        public CommentAdapter(Context context, ArrayList<DriveComment> parentData, ArrayList<ArrayList<DriveComment>> childData) {
-            super();
-            this.context = context;
-            this.parentData = parentData;
-            this.childData = childData;
-        }
+                    DBHelper helper = new DBHelper(this);
+                    SQLiteDatabase db = helper.getWritableDatabase();
 
-        @Override
-        public int getGroupCount() {
-            return parentData.size();
-        }
+                    SimpleDateFormat simpleDate = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+                    Date date = new Date();
 
-        @Override
-        public int getChildrenCount(int groupPosition) { // childeren 수
-            return childData.get(groupPosition).size();
-        }
+                    ContentValues values = new ContentValues();
+                    values.put("name", name);
+                    values.put("comment", comment);
+                    values.put("datetime", simpleDate.format(date));
+                    db.insert("tb_comment", null, values);
 
-        @Override
-        public Object getGroup(int groupPosition) {
-            return parentData.get(groupPosition);
-        }
 
-        @Override // get information of player
-        public Object getChild(int groupPosition, int childPosition) {
-            return childData.get(groupPosition);
-        }
 
-        @Override
-        public long getGroupId(int i) {
-            return i;
-        }
+                    CommentAdapter adapter = new CommentAdapter(this, this, name);
+                    comment_listView.setAdapter(adapter);
+                    comment_text.setText(null);
+                    comment_text.clearFocus();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
 
-        @Override
-        public long getChildId(int groupPosition, int childPosition) {
-            return childPosition;
-        }
+                    scrollView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            scrollView.fullScroll(View.FOCUS_DOWN);
+                        }
+                    });
 
-        @Override
-        public boolean hasStableIds() {
-            return false;
-        }
-
-        @Override
-        public View getGroupView(final int groupPosition, final boolean isExpanded, View convertView, final ViewGroup parent) {
-            ViewHolder viewHolder;
-            if (convertView == null) {
-                viewHolder = new ViewHolder();
-                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = inflater.inflate(R.layout.diary_comment_listview, null);
-                viewHolder.name = (TextView) convertView.findViewById(R.id.comment_list_name);
-                viewHolder.comment = convertView.findViewById(R.id.comment_list_content);
-                viewHolder.expandBtn=convertView.findViewById(R.id.comment_list_show_recomment);
-                convertView.setTag(viewHolder);
-            } else {
-                viewHolder = (ViewHolder) convertView.getTag();
-            }
-
-            final DriveComment vo = parentData.get(groupPosition);
-            viewHolder.name.setText(vo.comment.get("name"));
-            viewHolder.comment.setText(vo.comment.get("comment"));
-            viewHolder.expandBtn.setText("답글보기(" + getChildrenCount(groupPosition)+")");
-
-            viewHolder.expandBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if(isExpanded) ((ExpandableListView) parent).collapseGroup(groupPosition);
-                    else ((ExpandableListView) parent).expandGroup(groupPosition, true);
                 }
-            });
+            }else{
+                String comment = comment_text.getText().toString();
+                String name = getResources().getString(R.string.id);
+
+                if(!comment.equals("")) {
+
+                    DBHelper helper = new DBHelper(this);
+                    SQLiteDatabase db = helper.getWritableDatabase();
+                    ArrayList<Integer> value = (ArrayList<Integer>) v.getTag();
+
+                    SimpleDateFormat simpleDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    Date date = new Date();
+
+                    int parent_id = value.get(0);
+                    int parent_pos = value.get(1);
+                    ContentValues values = new ContentValues();
+                    values.put("name", name);
+                    values.put("comment", comment);
+                    values.put("datetime", simpleDate.format(date));
+                    values.put("parent", parent_id);
+                    db.insert("tb_comment", null, values);
 
 
-            return convertView;
+                    CommentAdapter adapter = new CommentAdapter(this, this, name);
+                    comment_listView.setAdapter(adapter);
+                    comment_text.setText(null);
+                    comment_listView.expandGroup(parent_pos);
 
+                }
 
-        }
-
-        @Override
-        public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-            ViewHolder viewHolder;
-
-            if (convertView == null) {
-                viewHolder = new ViewHolder();
-                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = inflater.inflate(R.layout.diary_recomment_listview, null);
-                viewHolder.name = convertView.findViewById(R.id.recomment_list_name);
-                viewHolder.comment = convertView.findViewById(R.id.recomment_list_content);
-                convertView.setTag(viewHolder);
-            } else {
-                viewHolder = (ViewHolder) convertView.getTag();
             }
 
-            final DriveComment vo = childData.get(groupPosition).get(childPosition);
-            viewHolder.name.setText(vo.comment.get("name"));
-            viewHolder.comment.setText(vo.comment.get("comment"));
-            return convertView;
         }
-
-        @Override
-        public boolean isChildSelectable(int i, int i1) {
-            return false;
-        }
-
-
-
     }
 
-    class ViewHolder {
-        public TextView name;
-        public TextView comment;
-        public TextView expandBtn;
-    }
+
     public void ShowToast(String message){
         Toast t = Toast.makeText(this, message, Toast.LENGTH_SHORT);
         t.show();
     }
 
+    @Override
+    public void onRecomment(View v, String name, int parent_id, int group_pos) {
+        comment_layout.setVisibility(View.VISIBLE);
+        delete_comment=findViewById(R.id.diary_comment_recomment_delete);
+        delete_comment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                comment_layout.setVisibility(View.GONE);
+            }
+        });
+
+        recomment_info.setText(name +"님에게 답글을 남기는 중...");
+        ArrayList<Integer> value = new ArrayList<>();
+        value.add(parent_id);
+        value.add(group_pos);
+        add_comment.setTag(value);
+
+    }
 }

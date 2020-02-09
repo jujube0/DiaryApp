@@ -1,11 +1,15 @@
 package com.example.myapplication;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,5 +35,40 @@ public class Diary_menu extends AppCompatActivity {
         menuRecyclerView.setLayoutManager(new LinearLayoutManager((this)));
         DiaryMenuAdapter adapter = new DiaryMenuAdapter(list);
         menuRecyclerView.setAdapter(adapter);
+    }
+
+    public class DiaryMenuAdapter extends RecyclerView.Adapter<DiaryMenuViewHolder>{
+
+        private List<DriveDiaryMenu> list;
+
+
+        public DiaryMenuAdapter( List<DriveDiaryMenu> list){
+            this.list=list;
+        }
+
+
+        @Override
+        public DiaryMenuViewHolder onCreateViewHolder(ViewGroup parent, int i) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.diary_menu_recyclerview_item, parent,false);
+
+            return new DiaryMenuViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull DiaryMenuViewHolder holder, int position) {
+            final DriveDiaryMenu vo = list.get(position);
+
+            holder.title.setText(vo.title);
+            holder.content.setText(vo.content);
+            //  holder.img.setImageDrawable((Drawable) vo.imageGetter);   ///????????????????
+            holder.num_comment.setText(vo.comment_num);
+            holder.num_heart.setText(vo.heart_num);
+        }
+
+        @Override
+        public int getItemCount() {
+            return list.size();
+        }
     }
 }

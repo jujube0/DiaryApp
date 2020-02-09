@@ -48,7 +48,6 @@
                 android:id="@+id/diary_text_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/diary_text_title"
                 android:textStyle="bold"
                 android:textSize="30dp"
                 android:layout_marginLeft="10dp"
@@ -83,6 +82,7 @@
                     android:layout_height="250dp"
                     android:src="@drawable/image_square"/>
                 <TextView
+                    android:id="@+id/diary_text_content"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/text"
