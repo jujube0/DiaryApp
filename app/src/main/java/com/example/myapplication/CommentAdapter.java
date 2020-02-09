@@ -28,7 +28,6 @@ public class CommentAdapter extends BaseExpandableListAdapter {
     ArrayList<ArrayList<DriveComment>> childData = new ArrayList<>();
     private OnRecommentListener mListener;
 
-
     public interface OnRecommentListener {
         void onRecomment(View v, String name, int parent_id, int group_pos);
     }
@@ -41,39 +40,38 @@ public class CommentAdapter extends BaseExpandableListAdapter {
         this.context = context;
         user_id = id;
 
-
-
         DBHelper helper = new DBHelper(context);
         SQLiteDatabase db = helper.getWritableDatabase();
 
+        if(parentData.size()==0) {
+            Cursor cursor = db.rawQuery("select _id, name, comment, datetime from tb_comment where parent is null order by _id", null);
+            while (cursor.moveToNext()) {
 
-        Cursor cursor = db.rawQuery("select _id, name, comment, datetime from tb_comment where parent is null order by _id", null);
-        while (cursor.moveToNext()){
-
-            DriveComment vo = new DriveComment();
-            HashMap<String, String> data = new HashMap<>();
-            data.put("name", cursor.getString(1));
-            data.put("comment", cursor.getString(2));
-            vo.comment = data;
-            vo.id = cursor.getInt(0);
-            vo.datetime=new Date(cursor.getLong(3));
-            parentData.add(vo);
-            Cursor cursor_child = db.rawQuery("select _id, name, comment from tb_comment where parent ="
-            +vo.id+" order by _id", null);
-            ArrayList<DriveComment> child = new ArrayList<>();
-            while (cursor_child.moveToNext()){
-                DriveComment vo_child = new DriveComment();
-                HashMap<String, String> data_child = new HashMap<>();
-                data_child.put("name", cursor_child.getString(1));
-                data_child.put("comment", cursor_child.getString(2));
-                vo_child.comment = data_child;
-                vo_child.id = cursor.getInt(0);
-                child.add(vo_child);
+                DriveComment vo = new DriveComment();
+                HashMap<String, String> data = new HashMap<>();
+                data.put("name", cursor.getString(1));
+                data.put("comment", cursor.getString(2));
+                vo.comment = data;
+                vo.id = cursor.getInt(0);
+                vo.datetime = new Date(cursor.getLong(3));
+                parentData.add(vo);
+                Cursor cursor_child = db.rawQuery("select _id, name, comment from tb_comment where parent ="
+                        + vo.id + " order by _id", null);
+                ArrayList<DriveComment> child = new ArrayList<>();
+                while (cursor_child.moveToNext()) {
+                    DriveComment vo_child = new DriveComment();
+                    HashMap<String, String> data_child = new HashMap<>();
+                    data_child.put("name", cursor_child.getString(1));
+                    data_child.put("comment", cursor_child.getString(2));
+                    vo_child.comment = data_child;
+                    vo_child.id = cursor.getInt(0);
+                    child.add(vo_child);
+                }
+                childData.add(child);
             }
-            childData.add(child);
-        }
 
-        mListener = mlistener;
+            mListener = mlistener;
+        }
     }
 
     @Override
@@ -87,24 +85,26 @@ public class CommentAdapter extends BaseExpandableListAdapter {
     }
 
     @Override
-    public Object getGroup(int groupPosition) {
+    public DriveComment getGroup(int groupPosition) {
         return parentData.get(groupPosition);
     }
 
     @Override // get information of player
-    public Object getChild(int groupPosition, int childPosition) {
-        return childData.get(groupPosition);
+    public DriveComment getChild(int groupPosition, int childPosition) {
+        return childData.get(groupPosition).get(childPosition);
     }
 
     @Override
-    public long getGroupId(int i) {
-        return i;
+    public long getGroupId(int groupPosition) {
+        DriveComment vo = (DriveComment)getGroup(groupPosition);
+        return vo.id;
     }
 
 
     @Override
     public long getChildId(int groupPosition, int childPosition) {
-        return childPosition;
+        DriveComment vo = (DriveComment)getChild(groupPosition, childPosition);
+        return vo.id;
     }
 
     @Override
@@ -114,7 +114,7 @@ public class CommentAdapter extends BaseExpandableListAdapter {
 
     @Override
     public View getGroupView(final int groupPosition, final boolean isExpanded, View convertView, final ViewGroup parent) {
-        ViewHolder viewHolder;
+        final ViewHolder viewHolder;
         if (convertView == null) {
             viewHolder = new ViewHolder();
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -130,7 +130,7 @@ public class CommentAdapter extends BaseExpandableListAdapter {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        final DriveComment vo = parentData.get(groupPosition);
+        final DriveComment vo = getGroup(groupPosition);
         String name_comment = vo.comment.get("name");
         viewHolder.name.setText(name_comment);
 
@@ -161,6 +161,8 @@ public class CommentAdapter extends BaseExpandableListAdapter {
                     alertDialog.show();
                 }
             });
+        }else{
+            viewHolder.edit_btn.setVisibility(View.INVISIBLE);
         }
         viewHolder.comment.setText(vo.comment.get("comment"));
         viewHolder.expandBtn.setText("답글보기(" + getChildrenCount(groupPosition)+")");
@@ -182,7 +184,6 @@ public class CommentAdapter extends BaseExpandableListAdapter {
 
                 final DriveComment vo = parentData.get(groupPosition);
                 String name = vo.comment.get("name");
-                DeleteData(vo.id, false);
                 mListener.onRecomment(v, name, vo.id, groupPosition);
 
 
@@ -231,7 +232,10 @@ public class CommentAdapter extends BaseExpandableListAdapter {
                     builder.setNegativeButton("네", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
+
+
                             childData.get(groupPosition).remove(childPosition);
+
                             DeleteData(vo.id, false);
                             notifyDataSetChanged();
 
@@ -241,6 +245,8 @@ public class CommentAdapter extends BaseExpandableListAdapter {
                     alertDialog.show();
                 }
             });
+        }else {
+            viewHolder.edit_btn.setVisibility(View.INVISIBLE);
         }
         viewHolder.comment.setText(vo.comment.get("comment"));
 
