@@ -102,13 +102,13 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
                     DBHelper helper = new DBHelper(this);
                     SQLiteDatabase db = helper.getWritableDatabase();
 
-                    SimpleDateFormat simpleDate = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
-                    Date date = new Date();
+                  /*  SimpleDateFormat simpleDate = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+                    Date date = new Date();*/
 
                     ContentValues values = new ContentValues();
                     values.put("name", name);
                     values.put("comment", comment);
-                    values.put("datetime", simpleDate.format(date));
+                    //values.put("datetime", simpleDate.format(date));
                     db.insert("tb_comment", null, values);
 
 
@@ -138,15 +138,15 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
                     SQLiteDatabase db = helper.getWritableDatabase();
                     ArrayList<Integer> value = (ArrayList<Integer>) v.getTag();
 
-                    SimpleDateFormat simpleDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    Date date = new Date();
+                    /*SimpleDateFormat simpleDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    Date date = new Date();*/
 
                     int parent_id = value.get(0);
                     int parent_pos = value.get(1);
                     ContentValues values = new ContentValues();
                     values.put("name", name);
                     values.put("comment", comment);
-                    values.put("datetime", simpleDate.format(date));
+                   // values.put("datetime", simpleDate.format(date));
                     values.put("parent", parent_id);
                     db.insert("tb_comment", null, values);
 
@@ -179,8 +179,8 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
                 comment_layout.setVisibility(View.GONE);
             }
         });
-
-        recomment_info.setText(name +"님에게 답글을 남기는 중...");
+        String recomment = name +"님에게 답글을 남기는 중...";
+        recomment_info.setText(recomment);
         ArrayList<Integer> value = new ArrayList<>();
         value.add(parent_id);
         value.add(group_pos);

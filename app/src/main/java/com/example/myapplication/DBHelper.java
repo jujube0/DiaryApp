@@ -16,14 +16,13 @@ public class DBHelper extends SQLiteOpenHelper {
                 "(_id integer primary key autoincrement,"+
                 "name,"+
                 "comment," +
-                "parent integer," +
-                "datetime datetime)";
+                "parent integer)";
 
         db.execSQL(memoSQL);
 
-        db.execSQL("insert into tb_comment (name, comment, datetime) values (?,?,?)", new String[]{"사용자1","안녕","2020-01-01 00:00:00"});
-        db.execSQL("insert into tb_comment (name, comment,datetime) values (?,?,?)", new String[]{"사용자2","뭐야?","2020-01-01 00:00:00"});
-        db.execSQL("insert into tb_comment (name, comment, parent,datetime) values (?,?,?,?)", new String[]{"사용자3","무슨 말을 해야하지","1","2020-01-01 00:00:00"});
+        db.execSQL("insert into tb_comment (name, comment) values (?,?)", new String[]{"사용자1","안녕"});
+        db.execSQL("insert into tb_comment (name, comment) values (?,?)", new String[]{"사용자2","뭐야?"});
+        db.execSQL("insert into tb_comment (name, comment, parent) values (?,?,?)", new String[]{"사용자3","무슨 말을 해야하지","1"});
 
 
 
