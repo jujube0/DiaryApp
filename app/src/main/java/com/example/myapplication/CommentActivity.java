@@ -44,6 +44,7 @@ import java.util.zip.Inflater;
 
 public class CommentActivity extends AppCompatActivity implements View.OnClickListener, CommentAdapter.OnRecommentListener {
 
+    int comment_num = 42;
     ExpandableListView comment_listView;
     Button add_comment;
     EditText comment_text;
@@ -100,7 +101,9 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
                 if(!comment.equals("")) {
 
                     DBHelper helper = new DBHelper(this);
-                    SQLiteDatabase db = helper.getWritableDatabase();
+                    SQLiteDatabase db = helper.getWritableDatabase();/*
+                    Cursor c = db.rawQuery("select count(*) from tb_comment", null);
+                    int comment_num = Integer.parseInt(c.getString(0)); // getting number of preexisting comments*/
 
                   /*  SimpleDateFormat simpleDate = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
                     Date date = new Date();*/
@@ -108,6 +111,8 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
                     ContentValues values = new ContentValues();
                     values.put("name", name);
                     values.put("comment", comment);
+                    values.put("_id", comment_num);
+                    comment_num++;
                     //values.put("datetime", simpleDate.format(date));
                     db.insert("tb_comment", null, values);
 
@@ -138,6 +143,8 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
                     SQLiteDatabase db = helper.getWritableDatabase();
                     ArrayList<Integer> value = (ArrayList<Integer>) v.getTag();
 
+                  /*  Cursor c = db.rawQuery("select count(*) from tb_comment", null);
+                    int comment_num = Integer.parseInt(c.getString(0));*/// getting number of preexisting comments
                     /*SimpleDateFormat simpleDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     Date date = new Date();*/
 
@@ -146,6 +153,10 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
                     ContentValues values = new ContentValues();
                     values.put("name", name);
                     values.put("comment", comment);
+                    values.put("_id", comment_num);
+                    Toast t= Toast.makeText(this, comment_num+"추가", Toast.LENGTH_SHORT);
+                    t.show();
+                    comment_num++;
                    // values.put("datetime", simpleDate.format(date));
                     values.put("parent", parent_id);
                     db.insert("tb_comment", null, values);
@@ -155,6 +166,7 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
                     comment_listView.setAdapter(adapter);
                     comment_text.setText(null);
                     comment_listView.expandGroup(parent_pos);
+
 
                 }
 

@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -61,10 +62,11 @@ public class CommentAdapter extends BaseExpandableListAdapter {
                 while (cursor_child.moveToNext()) {
                     DriveComment vo_child = new DriveComment();
                     HashMap<String, String> data_child = new HashMap<>();
+                    vo_child.id = Integer.parseInt(cursor.getString(0));
                     data_child.put("name", cursor_child.getString(1));
                     data_child.put("comment", cursor_child.getString(2));
                     vo_child.comment = data_child;
-                    vo_child.id = cursor.getInt(0);
+
                     child.add(vo_child);
                 }
                 childData.add(child);
@@ -124,7 +126,7 @@ public class CommentAdapter extends BaseExpandableListAdapter {
             viewHolder.expandBtn=convertView.findViewById(R.id.comment_list_show_recomment);
             viewHolder.add_recomment=convertView.findViewById(R.id.comment_list_make_recomment);
             viewHolder.edit_btn=convertView.findViewById(R.id.comment_list_delete);
-            //viewHolder.datetime=convertView.findViewById(R.id.comment_list_datetime);
+            viewHolder.datetime=convertView.findViewById(R.id.comment_list_datetime);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
@@ -133,9 +135,16 @@ public class CommentAdapter extends BaseExpandableListAdapter {
         final DriveComment vo = getGroup(groupPosition);
         String name_comment = vo.comment.get("name");
         viewHolder.name.setText(name_comment);
-
         viewHolder.comment.setText(vo.comment.get("comment"));
-        viewHolder.expandBtn.setText("답글보기(" + getChildrenCount(groupPosition)+")");
+        viewHolder.datetime.setText(""+vo.id);
+        viewHolder.expandBtn.setText("답글보기(" + getChildrenCount(groupPosition)+")"); //setting
+
+        if(name_comment.equals(user_name)){
+            viewHolder.edit_btn.setVisibility(View.VISIBLE);
+            edit_event(viewHolder.edit_btn, true, vo, parentData);
+        }else{
+            viewHolder.edit_btn.setVisibility(View.INVISIBLE);
+        }
 
 
         viewHolder.expandBtn.setOnClickListener(new View.OnClickListener() {
@@ -173,16 +182,27 @@ public class CommentAdapter extends BaseExpandableListAdapter {
             viewHolder.name = convertView.findViewById(R.id.recomment_list_name);
             viewHolder.comment = convertView.findViewById(R.id.recomment_list_content);
             viewHolder.edit_btn=convertView.findViewById(R.id.recomment_list_delete);
-            //viewHolder.datetime=convertView.findViewById(R.id.recomment_list_datetime);
+            viewHolder.datetime=convertView.findViewById(R.id.recomment_list_datetime);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        final DriveComment vo = getChild(groupPosition,childPosition);
+        final DriveComment vo = childData.get(groupPosition).get(childPosition);
         String name_comment = vo.comment.get("name");
         viewHolder.name.setText(name_comment);
         viewHolder.comment.setText(vo.comment.get("comment"));
+        viewHolder.datetime.setText(""+vo.id);
+
+        // 댓글 등록한 name과 본인 이름이 같은 경우 삭제 버튼 활성화
+        if(name_comment.equals(user_name)){
+            viewHolder.edit_btn.setVisibility(View.VISIBLE);
+            edit_event(viewHolder.edit_btn, false, vo, childData.get(groupPosition));
+
+
+        }else{
+            viewHolder.edit_btn.setVisibility(View.INVISIBLE);
+        }
 
         return convertView;
     }
@@ -192,8 +212,21 @@ public class CommentAdapter extends BaseExpandableListAdapter {
         return false;
     }
 
+    void edit_event(TextView view, final boolean isParent, final DriveComment vo, final ArrayList<DriveComment> list){
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
+                DBHelper helper = new DBHelper(context);
+                SQLiteDatabase db = helper.getWritableDatabase();
 
+                list.remove(vo);
+
+               db.execSQL("delete from tb_comment where comment  =" + vo.comment); // id가 같은 거 지우기
+                notifyDataSetChanged();
+            }
+        });
+    }
 
 }
 
@@ -203,5 +236,5 @@ class ViewHolder {
     public TextView expandBtn;
     public TextView add_recomment;
     public TextView edit_btn;
- //   public TextView datetime;
+    public TextView datetime;
 }

@@ -13,17 +13,18 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db){
         String memoSQL = "create table tb_comment " +
-                "(_id integer primary key autoincrement,"+
+                "(_id integer primary key,"+
                 "name,"+
                 "comment," +
-                "parent integer)";
+                "parent integer," +
+                "deleted integer default 0)";
 
         db.execSQL(memoSQL);
 
         db.execSQL("insert into tb_comment (name, comment) values (?,?)", new String[]{"사용자1","안녕"});
-        db.execSQL("insert into tb_comment (name, comment) values (?,?)", new String[]{"사용자2","뭐야?"});
-        db.execSQL("insert into tb_comment (name, comment, parent) values (?,?,?)", new String[]{"사용자3","무슨 말을 해야하지","1"});
-
+        /*db.execSQL("insert into tb_comment (id, name, comment) values (?,?,?)", new String[]{"2","사용자2","뭐야?"});
+        db.execSQL("insert into tb_comment (id, name, comment, parent) values (?,?,?,?)", new String[]{"3","사용자3","무슨 말을 해야하지","1"});
+*/
 
 
     }
