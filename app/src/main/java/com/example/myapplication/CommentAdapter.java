@@ -56,13 +56,13 @@ public class CommentAdapter extends BaseExpandableListAdapter {
                 vo.id = cursor.getInt(0);
                 parentData.add(vo);
                 //child view
-                Cursor cursor_child = db.rawQuery("select _id, name, comment from tb_comment where parent ="
-                        + vo.id + " order by _id", null);
+                String c = "select _id, name, comment from tb_comment where parent = "+vo.id + " order by _id";
+                Cursor cursor_child = db.rawQuery(c, null);
                 ArrayList<DriveComment> child = new ArrayList<>();
                 while (cursor_child.moveToNext()) {
                     DriveComment vo_child = new DriveComment();
                     HashMap<String, String> data_child = new HashMap<>();
-                    vo_child.id = Integer.parseInt(cursor.getString(0));
+                    vo_child.id = cursor_child.getInt(0);
                     data_child.put("name", cursor_child.getString(1));
                     data_child.put("comment", cursor_child.getString(2));
                     vo_child.comment = data_child;
@@ -222,7 +222,7 @@ public class CommentAdapter extends BaseExpandableListAdapter {
 
                 list.remove(vo);
 
-               db.execSQL("delete from tb_comment where comment  =" + vo.comment); // id가 같은 거 지우기
+               db.execSQL("delete from tb_comment where _id  =" + vo.id); // id가 같은 거 지우기
                 notifyDataSetChanged();
             }
         });

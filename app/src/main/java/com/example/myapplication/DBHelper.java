@@ -13,7 +13,7 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db){
         String memoSQL = "create table tb_comment " +
-                "(_id integer primary key,"+
+                "(_id integer primary key autoincrement,"+
                 "name,"+
                 "comment," +
                 "parent integer," +
