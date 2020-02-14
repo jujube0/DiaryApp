@@ -10,5 +10,5 @@ public class DriveComment {
 
     HashMap<String, String> comment;
     int id;
-    Date datetime;
+    String datetime;
 }

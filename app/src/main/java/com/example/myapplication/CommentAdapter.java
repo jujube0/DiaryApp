@@ -45,7 +45,7 @@ public class CommentAdapter extends BaseExpandableListAdapter {
         DBHelper helper = new DBHelper(context);
         SQLiteDatabase db = helper.getWritableDatabase();
 
-            Cursor cursor = db.rawQuery("select _id, name, comment from tb_comment where parent is null order by _id", null);
+            Cursor cursor = db.rawQuery("select _id, name, comment from tb_comment where parent is null and deleted = 0 order by _id", null);
             while (cursor.moveToNext()) {
 
                 DriveComment vo = new DriveComment();
@@ -54,9 +54,10 @@ public class CommentAdapter extends BaseExpandableListAdapter {
                 data.put("comment", cursor.getString(2));
                 vo.comment = data;
                 vo.id = cursor.getInt(0);
+                //vo.datetime=cursor.getString(3);
                 parentData.add(vo);
                 //child view
-                String c = "select _id, name, comment from tb_comment where parent = "+vo.id + " order by _id";
+                String c = "select _id, name, comment from tb_comment where deleted = 0 and parent = "+vo.id + " order by _id";
                 Cursor cursor_child = db.rawQuery(c, null);
                 ArrayList<DriveComment> child = new ArrayList<>();
                 while (cursor_child.moveToNext()) {
@@ -216,14 +217,31 @@ public class CommentAdapter extends BaseExpandableListAdapter {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("해당 댓글을 삭제하시겠습니까?");
+                builder.setPositiveButton("아니오", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
 
-                DBHelper helper = new DBHelper(context);
-                SQLiteDatabase db = helper.getWritableDatabase();
+                    }
+                });
+                builder.setNegativeButton("네", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        DBHelper helper = new DBHelper(context);
+                        SQLiteDatabase db = helper.getWritableDatabase();
 
-                list.remove(vo);
+                        list.remove(vo);
+                        db.execSQL("update tb_comment Set deleted = 1 where _id= "+vo.id);
+                        notifyDataSetChanged();
+                    }
+                });
 
-               db.execSQL("delete from tb_comment where _id  =" + vo.id); // id가 같은 거 지우기
-                notifyDataSetChanged();
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+
+
+
             }
         });
     }

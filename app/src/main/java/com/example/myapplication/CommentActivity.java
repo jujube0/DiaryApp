@@ -141,19 +141,19 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
                     SQLiteDatabase db = helper.getWritableDatabase();
                     ArrayList<Integer> value = (ArrayList<Integer>) v.getTag();
 
-                    SimpleDateFormat simpleDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    Date date = new Date();
+                  /*  SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    Date date = new Date();*/
 
                     String parent_id = value.get(0).toString();
                     int parent_pos = value.get(1);
-                    db.execSQL("insert into tb_comment (name, comment, parent) values(?,?,?)", new String[]{name, comment, parent_id});
-                    /*ContentValues values = new ContentValues();
+
+                    ContentValues values = new ContentValues();
                     values.put("name", name);
                     values.put("comment", comment);
-                   // values.put("datetime", simpleDate.format(date));
                     values.put("parent", parent_id);
+                   // values.put("datetime", dateFo)
 
-                    db.insert("tb_comment", null, values);*/
+                    db.insert("tb_comment", null, values);
 
 
                     CommentAdapter adapter = new CommentAdapter(this, this, name);

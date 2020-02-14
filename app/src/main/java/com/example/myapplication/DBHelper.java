@@ -17,6 +17,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 "name,"+
                 "comment," +
                 "parent integer," +
+                "datetime default 0,"+
                 "deleted integer default 0)";
 
         db.execSQL(memoSQL);
