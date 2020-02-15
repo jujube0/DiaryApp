@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.icu.text.SimpleDateFormat;
@@ -49,6 +50,7 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
     Button add_comment;
     EditText comment_text;
     RelativeLayout comment_layout;
+    Button toDiary;
 
     TextView delete_comment;
     TextView recomment_info;
@@ -69,6 +71,8 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
         add_comment=findViewById(R.id.comment_btn_addcomment);
         comment_text=findViewById(R.id.comment_edit_text);
         add_comment.setOnClickListener(this);
+        toDiary=findViewById(R.id.diary_comment_btn_toDiary);
+        toDiary.setOnClickListener(this);
 
         comment_layout = findViewById(R.id.diary_comment_layout_recomment_info);
         recomment_info=findViewById(R.id.diary_comment_recomment_info);
@@ -161,6 +165,9 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
                 }
             }
 
+        }else if(v==toDiary){
+            Intent intent = new Intent(this, DiaryActivity.class);
+            startActivity(intent);
         }
     }
 

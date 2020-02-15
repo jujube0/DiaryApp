@@ -144,7 +144,7 @@ public class CommentAdapter extends BaseExpandableListAdapter {
 
         if(name_comment.equals(user_name)){
             viewHolder.edit_btn.setVisibility(View.VISIBLE);
-            edit_event(viewHolder.edit_btn, true, vo, parentData);
+            edit_event(viewHolder.edit_btn, vo, parentData);
         }else{
             viewHolder.edit_btn.setVisibility(View.INVISIBLE);
         }
@@ -200,7 +200,7 @@ public class CommentAdapter extends BaseExpandableListAdapter {
         // 댓글 등록한 name과 본인 이름이 같은 경우 삭제 버튼 활성화
         if(name_comment.equals(user_name)){
             viewHolder.edit_btn.setVisibility(View.VISIBLE);
-            edit_event(viewHolder.edit_btn, false, vo, childData.get(groupPosition));
+            edit_event(viewHolder.edit_btn, vo, childData.get(groupPosition));
 
 
         }else{
@@ -215,7 +215,7 @@ public class CommentAdapter extends BaseExpandableListAdapter {
         return false;
     }
 
-    void edit_event(TextView view, final boolean isParent, final DriveComment vo, final ArrayList<DriveComment> list){
+    void edit_event(TextView view, final DriveComment vo, final ArrayList<DriveComment> list){
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
