@@ -103,14 +103,12 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
                     DBHelper helper = new DBHelper(this);
                     SQLiteDatabase db = helper.getWritableDatabase();
 
-                  /*  SimpleDateFormat simpleDate = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
-                    Date date = new Date();*/
 
                     ContentValues values = new ContentValues();
                     values.put("name", name);
                     values.put("comment", comment);
+                    values.put("datetime", System.currentTimeMillis()); //datetime
 
-                    //values.put("datetime", simpleDate.format(date));
                     db.insert("tb_comment", null, values);
 
 
@@ -141,8 +139,6 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
                     SQLiteDatabase db = helper.getWritableDatabase();
                     ArrayList<Integer> value = (ArrayList<Integer>) v.getTag();
 
-                  /*  SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    Date date = new Date();*/
 
                     String parent_id = value.get(0).toString();
                     int parent_pos = value.get(1);
@@ -151,7 +147,7 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
                     values.put("name", name);
                     values.put("comment", comment);
                     values.put("parent", parent_id);
-                   // values.put("datetime", dateFo)
+                    values.put("datetime", System.currentTimeMillis());
 
                     db.insert("tb_comment", null, values);
 

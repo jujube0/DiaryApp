@@ -17,6 +17,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -45,7 +46,7 @@ public class CommentAdapter extends BaseExpandableListAdapter {
         DBHelper helper = new DBHelper(context);
         SQLiteDatabase db = helper.getWritableDatabase();
 
-            Cursor cursor = db.rawQuery("select _id, name, comment from tb_comment where parent is null and deleted = 0 order by _id", null);
+            Cursor cursor = db.rawQuery("select _id, name, comment, datetime from tb_comment where parent is null and deleted = 0 order by _id", null);
             while (cursor.moveToNext()) {
 
                 DriveComment vo = new DriveComment();
@@ -54,10 +55,10 @@ public class CommentAdapter extends BaseExpandableListAdapter {
                 data.put("comment", cursor.getString(2));
                 vo.comment = data;
                 vo.id = cursor.getInt(0);
-                //vo.datetime=cursor.getString(3);
+                vo.datetime=cursor.getLong(3);//datetime
                 parentData.add(vo);
                 //child view
-                String c = "select _id, name, comment from tb_comment where deleted = 0 and parent = "+vo.id + " order by _id";
+                String c = "select _id, name, comment, datetime from tb_comment where deleted = 0 and parent = "+vo.id + " order by _id";
                 Cursor cursor_child = db.rawQuery(c, null);
                 ArrayList<DriveComment> child = new ArrayList<>();
                 while (cursor_child.moveToNext()) {
@@ -66,6 +67,7 @@ public class CommentAdapter extends BaseExpandableListAdapter {
                     vo_child.id = cursor_child.getInt(0);
                     data_child.put("name", cursor_child.getString(1));
                     data_child.put("comment", cursor_child.getString(2));
+                    vo_child.datetime = cursor_child.getLong(3);
                     vo_child.comment = data_child;
 
                     child.add(vo_child);
@@ -137,7 +139,7 @@ public class CommentAdapter extends BaseExpandableListAdapter {
         String name_comment = vo.comment.get("name");
         viewHolder.name.setText(name_comment);
         viewHolder.comment.setText(vo.comment.get("comment"));
-        viewHolder.datetime.setText(""+vo.id);
+        viewHolder.datetime.setText(convertTime(vo.datetime));
         viewHolder.expandBtn.setText("답글보기(" + getChildrenCount(groupPosition)+")"); //setting
 
         if(name_comment.equals(user_name)){
@@ -193,7 +195,7 @@ public class CommentAdapter extends BaseExpandableListAdapter {
         String name_comment = vo.comment.get("name");
         viewHolder.name.setText(name_comment);
         viewHolder.comment.setText(vo.comment.get("comment"));
-        viewHolder.datetime.setText(""+vo.id);
+        viewHolder.datetime.setText(convertTime(vo.datetime));
 
         // 댓글 등록한 name과 본인 이름이 같은 경우 삭제 버튼 활성화
         if(name_comment.equals(user_name)){
@@ -244,6 +246,18 @@ public class CommentAdapter extends BaseExpandableListAdapter {
 
             }
         });
+    }
+    public String convertTime(long time){
+        long diff = (System.currentTimeMillis() - time)/(1000*60);  //minute difference
+        if(diff<60){
+            return diff+"분 전";
+        }else if(diff<60*12){
+            return diff/60 + "시간 전";
+        } else {
+            Date date = new Date(time);
+            Format format = new SimpleDateFormat("yyyy.MM.dd");
+            return format.format(date);
+        }
     }
 
 }
