@@ -40,7 +40,6 @@ public class Frag_comment extends Fragment implements View.OnClickListener, Comm
     NestedScrollView scrollView;
     String name;
 
-
     ArrayList<DriveComment> parentData = new ArrayList<>();
     ArrayList<ArrayList<DriveComment>> childData = new ArrayList<>();
 
@@ -69,6 +68,8 @@ public class Frag_comment extends Fragment implements View.OnClickListener, Comm
         add_comment.setOnClickListener(this);
         toDiary=view.findViewById(R.id.diary_comment_btn_toDiary);
         toDiary.setOnClickListener(this);
+
+        delete_comment=view.findViewById(R.id.diary_comment_recomment_delete);
 
         comment_layout = view.findViewById(R.id.diary_comment_layout_recomment_info);
         recomment_info=view.findViewById(R.id.diary_comment_recomment_info);
@@ -167,7 +168,6 @@ public class Frag_comment extends Fragment implements View.OnClickListener, Comm
     @Override
     public void onRecomment(View v, String name, int parent_id, int group_pos) {
         comment_layout.setVisibility(View.VISIBLE);
-        delete_comment=v.findViewById(R.id.diary_comment_recomment_delete);
         delete_comment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

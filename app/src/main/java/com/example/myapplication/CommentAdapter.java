@@ -139,7 +139,8 @@ public class CommentAdapter extends BaseExpandableListAdapter {
         String name_comment = vo.comment.get("name");
         viewHolder.name.setText(name_comment);
         viewHolder.comment.setText(vo.comment.get("comment"));
-        viewHolder.datetime.setText(""+vo.datetime);
+
+        viewHolder.datetime.setText(convertTime(vo.datetime));
         viewHolder.expandBtn.setText("답글보기(" + getChildrenCount(groupPosition)+")"); //setting
 
         if(name_comment.equals(user_name)){

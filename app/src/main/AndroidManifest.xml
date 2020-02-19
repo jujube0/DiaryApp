@@ -10,10 +10,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".Frag_comment"></activity>
-        <activity android:name=".frag_comment" />
         <activity android:name=".MenuFragment" />
         <activity android:name=".FragmentB" />
-        <activity android:name=".FragmentA" />
         <activity android:name=".DiaryComment">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -21,13 +19,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Activity_comment2">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
         <activity android:name=".CommentActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
