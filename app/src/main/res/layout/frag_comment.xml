@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/white"
+    android:orientation="vertical">
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/diary_comment_scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="50dp">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/activity_comment_layout1">
+
+            <TextView
+                android:id="@+id/diary_comment_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="댓글"
+                android:textStyle="bold"
+                android:textSize="20dp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"/>
+
+            <Button
+                android:id="@+id/diary_comment_btn_toDiary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:layout_alignParentRight="true"
+                android:text="본문보기"
+                android:textColor="#8d8d8d"
+                android:stateListAnimator="@null"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@id/diary_comment_title"
+                android:background="#bdbdbd"/>
+
+            <com.example.myapplication.NonScrollExpandableListView
+                android:id="@+id/diary_comment_content_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/diary_comment_title"
+                android:divider="@null"
+                android:focusable="false"
+                android:groupIndicator="@null"
+                android:transcriptMode="alwaysScroll"
+                />
+
+        </RelativeLayout>
+    </androidx.core.widget.NestedScrollView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true">
+        <RelativeLayout
+            android:id="@+id/diary_comment_layout_recomment_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:visibility="gone">
+            <TextView
+                android:id="@+id/diary_comment_recomment_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"/>
+            <TextView
+                android:id="@+id/diary_comment_recomment_delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="x"
+                android:layout_toRightOf="@id/diary_comment_recomment_info"
+                android:layout_marginLeft="10dp"
+                android:textSize="14dp"
+                android:textStyle="bold"
+                android:clickable="true"/>
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/diary_comment_layout_2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="#ffffff">
+            <EditText
+                android:id="@+id/comment_edit_text"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:hint="댓글을 입력하세요..."
+                android:maxLines="5"
+                android:layout_marginLeft="10dp"
+                android:background="@drawable/rectangle_background" />
+            <Button
+                android:id="@+id/comment_btn_addcomment"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:text="게시"
+                android:background="@android:color/transparent"
+                android:outlineAmbientShadowColor="@null"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>
