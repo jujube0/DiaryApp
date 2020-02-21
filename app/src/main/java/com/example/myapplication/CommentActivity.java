@@ -34,7 +34,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Comment;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -44,6 +45,7 @@ import java.util.List;
 import java.util.zip.Inflater;
 
 public class CommentActivity extends AppCompatActivity implements View.OnClickListener, CommentAdapter.OnRecommentListener {
+
 
 
     ExpandableListView comment_listView;
@@ -58,8 +60,11 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
     String name;
 
 
-    ArrayList<DriveComment> parentData = new ArrayList<>();
-    ArrayList<ArrayList<DriveComment>> childData = new ArrayList<>();
+    private DatabaseReference mDatabase;
+
+
+    ArrayList<Comment> parentData = new ArrayList<>();
+    ArrayList<ArrayList<Comment>> childData = new ArrayList<>();
 
 
 
@@ -79,9 +84,6 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
         scrollView=findViewById(R.id.diary_comment_scrollView);
         name = getResources().getString(R.string.id);
 
-
-
-
         CommentAdapter adapter = new CommentAdapter(this, this, name);
         comment_listView.setAdapter(adapter);
 
@@ -99,26 +101,18 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
     public void onClick(View v) {
         if(v == add_comment){
             if(comment_layout.getVisibility()==View.GONE){
-                String comment = comment_text.getText().toString();
+                String content = comment_text.getText().toString();
 
 
-                if(!comment.equals("")) {
+                if(!content.equals("")) {
 
-                    DBHelper helper = new DBHelper(this);
-                    SQLiteDatabase db = helper.getWritableDatabase();
-
-
-                    ContentValues values = new ContentValues();
-                    values.put("name", name);
-                    values.put("comment", comment);
-                    values.put("datetime", System.currentTimeMillis()); //datetime
-
-                    db.insert("tb_comment", null, values);
+                    Comment c = new Comment(name, content, System.currentTimeMillis());
+                    createComment(c);
 
 
 
-                    CommentAdapter adapter = new CommentAdapter(this, this, name);
-                    comment_listView.setAdapter(adapter);
+      /*              CommentAdapter adapter = new CommentAdapter(this, this, name);
+                    comment_listView.setAdapter(adapter);*/
                     comment_text.setText(null);
                     comment_text.clearFocus();
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -133,27 +127,21 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
 
                 }
             }else{
-                String comment = comment_text.getText().toString();
+                String content = comment_text.getText().toString();
                 String name = getResources().getString(R.string.id);
 
-                if(!comment.equals("")) {
+                if(!content.equals("")) {
 
 
-                    DBHelper helper = new DBHelper(this);
-                    SQLiteDatabase db = helper.getWritableDatabase();
+
                     ArrayList<Integer> value = (ArrayList<Integer>) v.getTag();
 
 
-                    String parent_id = value.get(0).toString();
+                    int parent_id = value.get(0);
                     int parent_pos = value.get(1);
 
-                    ContentValues values = new ContentValues();
-                    values.put("name", name);
-                    values.put("comment", comment);
-                    values.put("parent", parent_id);
-                    values.put("datetime", System.currentTimeMillis());
+                    Comment c = new Comment(name, content, System.currentTimeMillis(), parent_id);
 
-                    db.insert("tb_comment", null, values);
 
 
                     CommentAdapter adapter = new CommentAdapter(this, this, name);
@@ -193,6 +181,11 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
         value.add(parent_id);
         value.add(group_pos);
         add_comment.setTag(value);
+
+    }
+    void createComment(Comment c){
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+        ref.child("comments").push().setValue(c);
 
     }
 }

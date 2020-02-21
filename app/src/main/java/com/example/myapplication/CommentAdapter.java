@@ -17,6 +17,15 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -25,12 +34,13 @@ import java.util.HashMap;
 
 public class CommentAdapter extends BaseExpandableListAdapter {
     Context context;
-    String user_name;
+    String user_id;
 
-    ArrayList<DriveComment> parentData = new ArrayList<>();
-    ArrayList<ArrayList<DriveComment>> childData = new ArrayList<>();
-    private OnRecommentListener mListener;
-
+    ArrayList<Comment> parentData = new ArrayList<>();
+    ArrayList<String> parent_id = new ArrayList<>();
+    ArrayList<ArrayList<Comment>> childData = new ArrayList<>();
+    private OnRecommentListener mlistener;
+    private DatabaseReference mDatabase;
     public interface OnRecommentListener {
         void onRecomment(View v, String name, int parent_id, int group_pos);
     }
@@ -38,45 +48,41 @@ public class CommentAdapter extends BaseExpandableListAdapter {
 
 
 
-    public CommentAdapter(Context context, OnRecommentListener mlistener, String user_name) {
+    public CommentAdapter(Context context, OnRecommentListener mlistener, String user_id) {
         super();
         this.context = context;
-        this.user_name = user_name;
+        this.user_id = user_id;
+        this.mlistener=mlistener;
 
-        DBHelper helper = new DBHelper(context);
-        SQLiteDatabase db = helper.getWritableDatabase();
-
-            Cursor cursor = db.rawQuery("select _id, name, comment, datetime from tb_comment where parent is null and deleted = 0 order by _id", null);
-            while (cursor.moveToNext()) {
-
-                DriveComment vo = new DriveComment();
-                HashMap<String, String> data = new HashMap<>();
-                data.put("name", cursor.getString(1));
-                data.put("comment", cursor.getString(2));
-                vo.comment = data;
-                vo.id = cursor.getInt(0);
-                vo.datetime=cursor.getLong(3);//datetime
-                parentData.add(vo);
-                //child view
-                String c = "select _id, name, comment, datetime from tb_comment where deleted = 0 and parent = "+vo.id + " order by _id";
-                Cursor cursor_child = db.rawQuery(c, null);
-                ArrayList<DriveComment> child = new ArrayList<>();
-                while (cursor_child.moveToNext()) {
-                    DriveComment vo_child = new DriveComment();
-                    HashMap<String, String> data_child = new HashMap<>();
-                    vo_child.id = cursor_child.getInt(0);
-                    data_child.put("name", cursor_child.getString(1));
-                    data_child.put("comment", cursor_child.getString(2));
-                    vo_child.datetime = cursor_child.getLong(3);
-                    vo_child.comment = data_child;
-
-                    child.add(vo_child);
-                }
-                childData.add(child);
+        mDatabase = FirebaseDatabase.getInstance().getReference().child("comments");
+        mDatabase.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                Comment c = dataSnapshot.getValue(Comment.class);
+                parentData.add(c);
+                parent_id.add(dataSnapshot.getKey());
             }
 
-            mListener = mlistener;
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     @Override
@@ -90,26 +96,26 @@ public class CommentAdapter extends BaseExpandableListAdapter {
     }
 
     @Override
-    public DriveComment getGroup(int groupPosition) {
+    public Comment getGroup(int groupPosition) {
         return parentData.get(groupPosition);
     }
 
     @Override // get information of player
-    public DriveComment getChild(int groupPosition, int childPosition) {
+    public Comment getChild(int groupPosition, int childPosition) {
         return childData.get(groupPosition).get(childPosition);
     }
 
     @Override
     public long getGroupId(int groupPosition) {
-        DriveComment vo = (DriveComment)getGroup(groupPosition);
-        return vo.id;
+
+        return 0;
     }
 
 
     @Override
     public long getChildId(int groupPosition, int childPosition) {
-        DriveComment vo = (DriveComment)getChild(groupPosition, childPosition);
-        return vo.id;
+        Comment vo = (Comment)getChild(groupPosition, childPosition);
+        return 0;
     }
 
     @Override
@@ -134,22 +140,12 @@ public class CommentAdapter extends BaseExpandableListAdapter {
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
+        final Comment co = getGroup(groupPosition);
 
-        final DriveComment vo = getGroup(groupPosition);
-        String name_comment = vo.comment.get("name");
-        viewHolder.name.setText(name_comment);
-        viewHolder.comment.setText(vo.comment.get("comment"));
-
-        viewHolder.datetime.setText(convertTime(vo.datetime));
-        viewHolder.expandBtn.setText("답글보기(" + getChildrenCount(groupPosition)+")"); //setting
-
-        if(name_comment.equals(user_name)){
-            viewHolder.edit_btn.setVisibility(View.VISIBLE);
-            edit_event(viewHolder.edit_btn, vo, parentData);
-        }else{
-            viewHolder.edit_btn.setVisibility(View.INVISIBLE);
-        }
-
+        viewHolder.name.setText(co.comment_writer);
+        viewHolder.comment.setText(co.content);
+        viewHolder.datetime.setText(convertTime(co.date));
+        viewHolder.expandBtn.setText("답글보기");
 
         viewHolder.expandBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -161,15 +157,28 @@ public class CommentAdapter extends BaseExpandableListAdapter {
         viewHolder.add_recomment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Comment co = parentData.get(groupPosition);
+                String comment_writer = co.comment_writer;
+              //  mlistener.onRecomment(v, comment_writer, parent_id(groupPosition), groupPosition);
 
-                final DriveComment vo = parentData.get(groupPosition);
-                String name = vo.comment.get("name");
-                mListener.onRecomment(v, name, vo.id, groupPosition);
 
 
             }
         });
+        /*
+        viewHolder.expandBtn.setText("답글보기(" + getChildrenCount(groupPosition)+")"); //setting
 
+        if(name_comment.equals(user_id)){
+            viewHolder.edit_btn.setVisibility(View.VISIBLE);
+            edit_event(viewHolder.edit_btn, vo, parentData);
+        }else{
+            viewHolder.edit_btn.setVisibility(View.INVISIBLE);
+        }
+
+
+
+
+*/
         return convertView;
 
 
@@ -191,22 +200,22 @@ public class CommentAdapter extends BaseExpandableListAdapter {
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-
-        final DriveComment vo = childData.get(groupPosition).get(childPosition);
+/*
+        final Comment vo = childData.get(groupPosition).get(childPosition);
         String name_comment = vo.comment.get("name");
         viewHolder.name.setText(name_comment);
         viewHolder.comment.setText(vo.comment.get("comment"));
         viewHolder.datetime.setText(convertTime(vo.datetime));
 
         // 댓글 등록한 name과 본인 이름이 같은 경우 삭제 버튼 활성화
-        if(name_comment.equals(user_name)){
+        if(name_comment.equals(user_id)){
             viewHolder.edit_btn.setVisibility(View.VISIBLE);
             edit_event(viewHolder.edit_btn, vo, childData.get(groupPosition));
 
 
         }else{
             viewHolder.edit_btn.setVisibility(View.INVISIBLE);
-        }
+        }*/
 
         return convertView;
     }
@@ -216,38 +225,6 @@ public class CommentAdapter extends BaseExpandableListAdapter {
         return false;
     }
 
-    void edit_event(TextView view, final DriveComment vo, final ArrayList<DriveComment> list){
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle("해당 댓글을 삭제하시겠습니까?");
-                builder.setPositiveButton("아니오", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-
-                    }
-                });
-                builder.setNegativeButton("네", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        DBHelper helper = new DBHelper(context);
-                        SQLiteDatabase db = helper.getWritableDatabase();
-
-                        list.remove(vo);
-                        db.execSQL("update tb_comment Set deleted = 1 where _id= "+vo.id);
-                        notifyDataSetChanged();
-                    }
-                });
-
-                AlertDialog alertDialog = builder.create();
-                alertDialog.show();
-
-
-
-            }
-        });
-    }
     public String convertTime(long time){
         long diff = (System.currentTimeMillis() - time)/(1000*60);  //minute difference
         if(diff<60){
