@@ -25,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+/*
 
 public class Frag_comment extends Fragment implements View.OnClickListener, CommentAdapter.OnRecommentListener {
 
@@ -40,8 +41,8 @@ public class Frag_comment extends Fragment implements View.OnClickListener, Comm
     NestedScrollView scrollView;
     String name;
 
-    ArrayList<DriveComment> parentData = new ArrayList<>();
-    ArrayList<ArrayList<DriveComment>> childData = new ArrayList<>();
+    ArrayList<Comment> parentData = new ArrayList<>();
+    ArrayList<ArrayList<Comment>> childData = new ArrayList<>();
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -110,10 +111,12 @@ public class Frag_comment extends Fragment implements View.OnClickListener, Comm
                     comment_listView.setAdapter(adapter);
                     comment_text.setText(null);
                     comment_text.clearFocus();
-                    /*
+                    */
+/*
                     //키보드 숨기기
                     InputMethodManager imm = (InputMethodManager) getSystemService(getActivity().INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);*/
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);*//*
+
 
                     scrollView.post(new Runnable() {
                         @Override
@@ -183,3 +186,4 @@ public class Frag_comment extends Fragment implements View.OnClickListener, Comm
 
     }
 }
+*/

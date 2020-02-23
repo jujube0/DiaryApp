@@ -11,9 +11,10 @@ import android.widget.TextView;
 
 public class DiaryComment extends AppCompatActivity{
 
+/*
     TextView btn1, btn2;
     MenuFragment frag_menu;
-    Frag_comment frag_comment;
+    //Frag_comment frag_comment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +35,7 @@ public class DiaryComment extends AppCompatActivity{
             }
         });
         frag_menu = new MenuFragment();
-        frag_comment = new Frag_comment();
+       // frag_comment = new Frag_comment();
         setFrag(1);
 
     }
@@ -50,6 +51,7 @@ public class DiaryComment extends AppCompatActivity{
             tran.commit();
         }
     }
+*/
 
 
 }

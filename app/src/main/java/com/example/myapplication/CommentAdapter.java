@@ -25,22 +25,23 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Queue;
 
 public class CommentAdapter extends BaseExpandableListAdapter {
     Context context;
     String user_id;
 
-    ArrayList<Comment> parentData = new ArrayList<>();
-    ArrayList<String> parent_id = new ArrayList<>();
-    ArrayList<ArrayList<Comment>> childData = new ArrayList<>();
+    ArrayList<Comment> parentData;
+    HashMap<Integer, ArrayList<Comment>> childData;
     private OnRecommentListener mlistener;
-    private DatabaseReference mDatabase;
     public interface OnRecommentListener {
         void onRecomment(View v, String name, int parent_id, int group_pos);
     }
@@ -48,41 +49,13 @@ public class CommentAdapter extends BaseExpandableListAdapter {
 
 
 
-    public CommentAdapter(Context context, OnRecommentListener mlistener, String user_id) {
+    public CommentAdapter(Context context, OnRecommentListener mlistener, String user_id, ArrayList<Comment> parentData,HashMap<Integer, ArrayList<Comment>> childData) {
         super();
         this.context = context;
         this.user_id = user_id;
         this.mlistener=mlistener;
-
-        mDatabase = FirebaseDatabase.getInstance().getReference().child("comments");
-        mDatabase.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Comment c = dataSnapshot.getValue(Comment.class);
-                parentData.add(c);
-                parent_id.add(dataSnapshot.getKey());
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+        this.parentData = parentData;
+        this.childData = childData;
     }
 
     @Override
@@ -92,7 +65,7 @@ public class CommentAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getChildrenCount(int groupPosition) { // childeren 수
-        return childData.get(groupPosition).size();
+        return childData.get((int)getGroupId(groupPosition)).size();
     }
 
     @Override
@@ -102,20 +75,19 @@ public class CommentAdapter extends BaseExpandableListAdapter {
 
     @Override // get information of player
     public Comment getChild(int groupPosition, int childPosition) {
-        return childData.get(groupPosition).get(childPosition);
+               return childData.get(groupPosition).get(childPosition);
     }
 
     @Override
     public long getGroupId(int groupPosition) {
 
-        return 0;
+        return parentData.get(groupPosition).comment_id;
     }
 
 
     @Override
     public long getChildId(int groupPosition, int childPosition) {
-        Comment vo = (Comment)getChild(groupPosition, childPosition);
-        return 0;
+        return childData.get((int)getGroupId(groupPosition)).get(childPosition).comment_id;
     }
 
     @Override
@@ -142,46 +114,35 @@ public class CommentAdapter extends BaseExpandableListAdapter {
         }
         final Comment co = getGroup(groupPosition);
 
-        viewHolder.name.setText(co.comment_writer);
+        viewHolder.name.setText(co.author_account);
         viewHolder.comment.setText(co.content);
         viewHolder.datetime.setText(convertTime(co.date));
-        viewHolder.expandBtn.setText("답글보기");
+        viewHolder.expandBtn.setText("답글보기(" + getChildrenCount(groupPosition)+")"); //setting
+        if(co.author_account.equals(user_id)){
+            viewHolder.edit_btn.setVisibility(View.VISIBLE);
+        }else{
+            viewHolder.edit_btn.setVisibility(View.INVISIBLE);
+        }
 
         viewHolder.expandBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(isExpanded) ((ExpandableListView) parent).collapseGroup(groupPosition);
-                else ((ExpandableListView) parent).expandGroup(groupPosition, true);
+                else if(!(childData.get(co.comment_id)==null))((ExpandableListView) parent).expandGroup(groupPosition, true);
             }
         });
         viewHolder.add_recomment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Comment co = parentData.get(groupPosition);
-                String comment_writer = co.comment_writer;
-              //  mlistener.onRecomment(v, comment_writer, parent_id(groupPosition), groupPosition);
-
-
-
+                String author_account = co.author_account;
+                mlistener.onRecomment(v, author_account, parentData.get(groupPosition).comment_id, groupPosition);
             }
         });
-        /*
-        viewHolder.expandBtn.setText("답글보기(" + getChildrenCount(groupPosition)+")"); //setting
+        //edit_btn에 click listener 등록하여 선택된 데이터를 삭제한다.
+        deleteComment(viewHolder.edit_btn, co.comment_id);
 
-        if(name_comment.equals(user_id)){
-            viewHolder.edit_btn.setVisibility(View.VISIBLE);
-            edit_event(viewHolder.edit_btn, vo, parentData);
-        }else{
-            viewHolder.edit_btn.setVisibility(View.INVISIBLE);
-        }
-
-
-
-
-*/
         return convertView;
-
-
     }
 
     @Override
@@ -200,23 +161,20 @@ public class CommentAdapter extends BaseExpandableListAdapter {
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-/*
-        final Comment vo = childData.get(groupPosition).get(childPosition);
-        String name_comment = vo.comment.get("name");
-        viewHolder.name.setText(name_comment);
-        viewHolder.comment.setText(vo.comment.get("comment"));
-        viewHolder.datetime.setText(convertTime(vo.datetime));
+        if(!(parentData.get(groupPosition)==null)){
+            final Comment co = getChild(groupPosition, childPosition);
+            viewHolder.name.setText(co.author_account);
+            viewHolder.comment.setText(co.content);
+            viewHolder.datetime.setText(convertTime(co.date));
+            deleteComment(viewHolder.edit_btn, co.comment_id);
 
-        // 댓글 등록한 name과 본인 이름이 같은 경우 삭제 버튼 활성화
-        if(name_comment.equals(user_id)){
-            viewHolder.edit_btn.setVisibility(View.VISIBLE);
-            edit_event(viewHolder.edit_btn, vo, childData.get(groupPosition));
-
-
-        }else{
-            viewHolder.edit_btn.setVisibility(View.INVISIBLE);
-        }*/
-
+            // 댓글 등록한 name과 본인 이름이 같은 경우 삭제 버튼 활성화
+            if(co.author_account.equals(user_id)){
+                viewHolder.edit_btn.setVisibility(View.VISIBLE);
+            }else{
+                viewHolder.edit_btn.setVisibility(View.INVISIBLE);
+            }
+        }
         return convertView;
     }
 
@@ -224,7 +182,45 @@ public class CommentAdapter extends BaseExpandableListAdapter {
     public boolean isChildSelectable(int i, int i1) {
         return false;
     }
+    void deleteComment(TextView v, final int comment_id){
 
+        v.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("정말 삭제하시겠습니까?");;
+
+                builder.setPositiveButton("네", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+                        Query query = ref.child("comments").orderByChild("comment_id").equalTo(comment_id);
+                        query.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                dataSnapshot.getRef().removeValue();
+                                notifyDataSetChanged();
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
+                });
+
+                builder.setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+            }
+        });
+    }
     public String convertTime(long time){
         long diff = (System.currentTimeMillis() - time)/(1000*60);  //minute difference
         if(diff<60){
@@ -237,7 +233,6 @@ public class CommentAdapter extends BaseExpandableListAdapter {
             return format.format(date);
         }
     }
-
 }
 
 class ViewHolder {

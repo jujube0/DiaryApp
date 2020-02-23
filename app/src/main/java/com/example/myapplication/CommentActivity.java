@@ -15,6 +15,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.icu.text.SimpleDateFormat;
 import android.icu.text.Transliterator;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -34,8 +35,13 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -58,13 +64,11 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
     TextView recomment_info;
     NestedScrollView scrollView;
     String name;
-
-
-    private DatabaseReference mDatabase;
-
+    int comment_num;
 
     ArrayList<Comment> parentData = new ArrayList<>();
-    ArrayList<ArrayList<Comment>> childData = new ArrayList<>();
+    HashMap<Integer, ArrayList<Comment>> childData = new HashMap<>();
+
 
 
 
@@ -84,8 +88,49 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
         scrollView=findViewById(R.id.diary_comment_scrollView);
         name = getResources().getString(R.string.id);
 
-        CommentAdapter adapter = new CommentAdapter(this, this, name);
-        comment_listView.setAdapter(adapter);
+        //Create list
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("comments");
+        ref.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                Comment co = dataSnapshot.getValue(Comment.class);
+                //parent 이면,
+                if(co.parent_id == -1){
+                    parentData.add(co);
+                    ArrayList<Comment> child = new ArrayList<>();
+                    childData.put(co.comment_id, child);
+                    //child이면
+                }else{
+                    childData.get(co.parent_id).add(co);
+                }
+
+                CommentAdapter adapter = new CommentAdapter(CommentActivity.this, CommentActivity.this, name, parentData, childData);
+                comment_listView.setAdapter(adapter);
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+
+
 
 
         comment_listView.setOnTouchListener(new View.OnTouchListener() {
@@ -100,19 +145,18 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onClick(View v) {
         if(v == add_comment){
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+
             if(comment_layout.getVisibility()==View.GONE){
                 String content = comment_text.getText().toString();
 
 
                 if(!content.equals("")) {
 
-                    Comment c = new Comment(name, content, System.currentTimeMillis());
-                    createComment(c);
+                    Comment c = new Comment(comment_num, name, content, System.currentTimeMillis());
+                    ref.child("comments").push().setValue(c);
+                    comment_num++;
 
-
-
-      /*              CommentAdapter adapter = new CommentAdapter(this, this, name);
-                    comment_listView.setAdapter(adapter);*/
                     comment_text.setText(null);
                     comment_text.clearFocus();
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -128,24 +172,17 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
                 }
             }else{
                 String content = comment_text.getText().toString();
-                String name = getResources().getString(R.string.id);
 
                 if(!content.equals("")) {
 
-
-
                     ArrayList<Integer> value = (ArrayList<Integer>) v.getTag();
-
 
                     int parent_id = value.get(0);
                     int parent_pos = value.get(1);
+                    Comment c = new Comment(comment_num, name, content, System.currentTimeMillis(), parent_id);
+                    ref.child("comments").push().setValue(c);
+                    comment_num++;
 
-                    Comment c = new Comment(name, content, System.currentTimeMillis(), parent_id);
-
-
-
-                    CommentAdapter adapter = new CommentAdapter(this, this, name);
-                    comment_listView.setAdapter(adapter);
                     comment_text.setText(null);
                     comment_listView.expandGroup(parent_pos); // 입력이 완료되면 입력창의 text를 지우고 parent의 댓글창을 엶
 
@@ -181,11 +218,6 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
         value.add(parent_id);
         value.add(group_pos);
         add_comment.setTag(value);
-
-    }
-    void createComment(Comment c){
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
-        ref.child("comments").push().setValue(c);
 
     }
 }
