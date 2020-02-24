@@ -140,8 +140,43 @@ public class CommentAdapter extends BaseExpandableListAdapter {
             }
         });
         //edit_btn에 click listener 등록하여 선택된 데이터를 삭제한다.
-        deleteComment(viewHolder.edit_btn, co.comment_id);
+        //deleteComment(viewHolder.edit_btn, co.comment_id);
+        viewHolder.edit_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("정말 삭제하시겠습니까?");;
 
+                builder.setPositiveButton("네", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+                        Query query = ref.child("comments").orderByChild("comment_id").equalTo(co.comment_id);
+                        query.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                dataSnapshot.getRef().removeValue();
+                                notifyDataSetChanged();
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
+                });
+
+                builder.setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+            }
+        });;
         return convertView;
     }
 

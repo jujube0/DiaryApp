@@ -52,7 +52,7 @@ import java.util.zip.Inflater;
 
 public class CommentActivity extends AppCompatActivity implements View.OnClickListener, CommentAdapter.OnRecommentListener {
 
-
+    //delete가 안됨 시발; delete 후 화면 새로고침 안되고, 삭제하면 다같이 삭제됨. child added 후 expand되는 것도 안됨 하
 
     ExpandableListView comment_listView;
     Button add_comment;
@@ -93,19 +93,7 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
         ref.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Comment co = dataSnapshot.getValue(Comment.class);
-                //parent 이면,
-                if(co.parent_id == -1){
-                    parentData.add(co);
-                    ArrayList<Comment> child = new ArrayList<>();
-                    childData.put(co.comment_id, child);
-                    //child이면
-                }else{
-                    childData.get(co.parent_id).add(co);
-                }
-
-                CommentAdapter adapter = new CommentAdapter(CommentActivity.this, CommentActivity.this, name, parentData, childData);
-                comment_listView.setAdapter(adapter);
+                CreateComment(dataSnapshot);
             }
 
             @Override
@@ -128,7 +116,6 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
 
             }
         });
-
 
 
 
@@ -219,5 +206,21 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
         value.add(group_pos);
         add_comment.setTag(value);
 
+    }
+
+    void CreateComment(DataSnapshot dataSnapshot){
+        Comment co = dataSnapshot.getValue(Comment.class);
+        //parent 이면,
+        if(co.parent_id == -1){
+            parentData.add(co);
+            ArrayList<Comment> child = new ArrayList<>();
+            childData.put(co.comment_id, child);
+            //child이면
+        }else{
+            childData.get(co.parent_id).add(co);
+        }
+
+        CommentAdapter adapter = new CommentAdapter(CommentActivity.this, CommentActivity.this, name, parentData, childData);
+        comment_listView.setAdapter(adapter);
     }
 }

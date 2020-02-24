@@ -12,6 +12,10 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+
 public class DiaryActivity extends AppCompatActivity implements View.OnClickListener {
     ImageView commentBtn;
 
@@ -26,16 +30,8 @@ public class DiaryActivity extends AppCompatActivity implements View.OnClickList
         TextView contentView = findViewById(R.id.diary_text_content);
         TextView clickView = findViewById(R.id.diary_top_text_clickNum);
 
-        DBHelper helper = new DBHelper(this);
-        SQLiteDatabase db = helper.getWritableDatabase();
-        Cursor cursor = db.rawQuery("select _id, name, comment from tb_comment order by _id desc limit 1", null);
-
-        while(cursor.moveToNext()){
-            clickView.setText(cursor.getString(0));
-            titleView.setText(cursor.getString(1));
-            contentView.setText(cursor.getString(2));
-        }
-        db.close();
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+        Query post_q = ref.child("blogPosts");
     }
 
     @Override
