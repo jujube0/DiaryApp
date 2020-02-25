@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent">
     <ScrollView
         android:id="@+id/textActivity_content"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp">
         <LinearLayout
             android:id="@+id/text_linearLayout"
             android:layout_width="match_parent"
@@ -50,7 +52,7 @@
                 android:background="#D3D0D0"/>
             <EditText
                 android:layout_marginTop="5dp"
-                android:id="@+id/text_content"
+                android:id="@+id/text_content_01"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:hint="내용을 입력하세요"
@@ -63,19 +65,49 @@
 
 
     </ScrollView>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="5dp"
+        android:layout_above="@+id/addbtn"
+        android:background="#D3D0D0"/>
+
     <Button
         android:id="@+id/textActivity_btn_addPhoto"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toLeftOf="@+id/addbtn"
+        android:layout_width="73dp"
+        android:layout_height="38dp"
         android:layout_alignBottom="@id/addbtn"
-        android:text="사진추가"/>
+        android:layout_toLeftOf="@+id/addbtn"
+        android:background="@android:color/transparent"
+        android:stateListAnimator="@null"
+        android:text="사진추가" />
+
     <Button
         android:id="@+id/addbtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_width="63dp"
+        android:layout_height="38dp"
         android:layout_alignParentRight="true"
-        android:text="Add"/>
+        android:layout_alignParentBottom="true"
+        android:background="@android:color/transparent"
+        android:stateListAnimator="@null"
+        android:text="작성완료" />
+    <Button
+        android:id="@+id/choose_optionBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="38dp"
+        android:layout_marginLeft="5dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:background="@android:color/transparent"
+        android:stateListAnimator="@null"
+        android:text="글쓰기속성변경" />
+    <ImageButton
+        android:layout_width="15dp"
+        android:layout_height="38dp"
+        android:src="@drawable/ic_keyboard_arrow_up_24px"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/choose_optionBtn"
+        android:layout_marginLeft="5dp"
+        android:background="@android:color/transparent"/>
 
 </RelativeLayout>

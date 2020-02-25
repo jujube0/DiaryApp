@@ -12,16 +12,14 @@ public class BlogPost {
 
     public BlogPost(){}
 
-    public BlogPost(String author_account, String title, String content, long date) {
+   /* public BlogPost(String author_account, String title, long date) {
         this.author_account = author_account;
         this.title = title;
-        this.content = content;
         this.date = date;
-    }
-    public BlogPost(String author_account, String title, String content, String category, long date) {
+    }*/
+    public BlogPost(String author_account, String title, String category, long date) {
         this.author_account = author_account;
         this.title = title;
-        this.content = content;
         this.category = category;
         this.date = date;
     }
