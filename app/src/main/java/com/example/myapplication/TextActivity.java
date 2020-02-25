@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -25,10 +26,13 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +47,10 @@ public class TextActivity extends AppCompatActivity implements View.OnClickListe
     TextView set_category;
     String category;
     LinearLayout layout;
-    public static final int PICK_IMAGE = -1;
+
+
+
+    public static final int PICK_IMAGE = 1;
     String mCurrentPhotoPath;
     private Uri filePath;
     StorageReference storageReference;
@@ -113,21 +120,27 @@ public class TextActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch(requestCode){
-            case PICK_IMAGE:
-                if(data.getData()!=null){
+      if (requestCode == PICK_IMAGE){
 
-                    try{
-                        filePath = data.getData();
-                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
-
-                        StorageReference ref = storageReference.child("images/"+ UUID.randomUUID().toString());
-                        ref.putFile(filePath);
-                    }catch(Exception e){
-                        e.printStackTrace();
-                    }
-                }
-                break;
+          filePath = data.getData();
+          try{
+              Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+              StorageReference ref = storageReference.child("images/"+UUID.randomUUID().toString());
+              ref.putFile(filePath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                  @Override
+                  public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                      Toast.makeText(TextActivity.this, "Image Uploaded!", Toast.LENGTH_SHORT).show();
+                  }
+              }).addOnFailureListener(new OnFailureListener() {
+                  @Override
+                  public void onFailure(@NonNull Exception e) {
+                      Toast.makeText(TextActivity.this, "Failed", Toast.LENGTH_SHORT).show();
+                  }
+              });
+          }
+          catch (IOException e){
+              e.printStackTrace();
+          }
 
 
         }
