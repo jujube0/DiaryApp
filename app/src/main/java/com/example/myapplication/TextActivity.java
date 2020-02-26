@@ -14,12 +14,14 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
+import android.view.KeyEvent;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
@@ -28,6 +30,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -36,22 +39,31 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Queue;
 import java.util.UUID;
+
+import static android.view.View.GONE;
+// 사진 크기 맞춰야됨 시부럴
 
 public class TextActivity extends AppCompatActivity implements View.OnClickListener, PopupMenu.OnMenuItemClickListener {
 
     Button text_addBtn;
     Button img_addBtn;
     EditText title_view;
-    EditText content_view;
     TextView set_category;
+
     String category;
-    //새로운 image가 들어있는 imageView를 추가할 layout
+    //새로운 image가 들어있는 imageButton를 추가할 layout
     LinearLayout layout;
     LinearLayout.LayoutParams layoutParams;
 
-    int content_num = 1;
+// 0은 title, 1은 첫번째 editText
+    int content_num = 2;
+    HashMap<Integer, BlogPost> contents;
 
 
 
@@ -77,10 +89,12 @@ public class TextActivity extends AppCompatActivity implements View.OnClickListe
         layout = (LinearLayout)findViewById(R.id.text_linearLayout);
         layoutParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
+                LinearLayout.LayoutParams.MATCH_PARENT
         );
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
+        contents = new HashMap<>();
+
 
 
     }
@@ -90,14 +104,48 @@ public class TextActivity extends AppCompatActivity implements View.OnClickListe
         //작성 완료 버튼
         if(view==text_addBtn){
             title_view = findViewById(R.id.text_title);
-            content_view = findViewById(R.id.text_content_01);
-            DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-
+            //DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("blogPosts");
             String title = title_view.getText().toString();
-            String content = content_view.getText().toString();
-            
-            BlogPost post = new BlogPost("김가영", title,category, System.currentTimeMillis());
-            mDatabase.child("blogPosts").push().setValue(post);
+            //BlogPost post = new BlogPost("김가영", title, category, System.currentTimeMillis());
+           // mDatabase.child("blogPosts").push().setValue(post); // title 형성
+
+            Map<String, BlogPost> posts = new HashMap<>();
+            //제목 넣기. 제목이 없으면 제목 설정하라고 toast
+            if(!title.equals("")) {
+                posts.put("0", new BlogPost("김가영", title, category, new Timestamp(System.currentTimeMillis())));
+                // 첫번째 editText의 id 변경
+                EditText first_view = findViewById(R.id.text_content_01);
+                if (!(first_view.getText().toString().equals(""))) {
+                    String t = first_view.getText().toString();
+                    posts.put("1", new BlogPost(1, BlogPost.TEXT, t));
+                }
+
+
+                for (int i = 2; i < content_num; i++) {
+                    // content를 담고있는 imageButton와 EditText를 순서대로 가져와 넣기
+                    if (!(contents.get(i) == null)) {
+                        BlogPost p = contents.get(i);
+                        if (p.type == BlogPost.IMAGE) {
+                            posts.put("" + i, p);
+                        } else {
+                            EditText editText = findViewById(i);
+                            if (!(editText.getText().toString().equals(""))) {
+                                String text = editText.getText().toString();
+                                p.putContent(text);
+                                posts.put("" + i, p);
+                            }
+                        }
+                    }
+                }
+                DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("blogPosts");
+                mDatabase.push().setValue(posts);
+
+                // 완료되면 완료 Toast.
+                Toast.makeText(this, "포스팅 완료", Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(this, "제목을 입력하세요", Toast.LENGTH_SHORT).show();
+            }
+
             //이미지 추가 버튼
         }else if(view == img_addBtn){
             Intent intent = new Intent();
@@ -113,6 +161,51 @@ public class TextActivity extends AppCompatActivity implements View.OnClickListe
         MenuInflater inflater = popup.getMenuInflater();
         inflater.inflate(R.menu.diary_category_menu, popup.getMenu());
         popup.show();
+    }
+
+
+    // bitmap을 받아 imageButton를 layout에 추가하고, 글을 입력할 수 있는 editText도 함께 추가.
+    void CreateimageButton(Bitmap bitmap, Uri imagePath){
+        final ImageButton imageButton = new ImageButton(this);
+        imageButton.setId(content_num);
+        imageButton.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        contents.put(content_num, new BlogPost(content_num, BlogPost.IMAGE, imagePath.getPath()));
+        imageButton.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Snackbar.make(v, "이미지를 삭제하시겠습니까?", Snackbar.LENGTH_LONG).setAction("네", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        imageButton.setVisibility(GONE);
+                        contents.remove(imageButton.getId());
+                    }
+                }).show();
+                return false;
+            }
+        });
+        content_num++;
+        final EditText editText = new EditText(this);
+        // backspace를 만나면 없어지기
+        editText.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if(keyCode == KeyEvent.KEYCODE_DEL&&(content_num-1)!=editText.getId()){
+                    editText.setVisibility(GONE);
+                }
+                return false;
+            }
+        });
+        editText.setId(content_num);
+        contents.put(content_num, new BlogPost(content_num, BlogPost.TEXT));
+        content_num++;
+
+        imageButton.setImageBitmap(bitmap);
+        layout.addView(imageButton, layoutParams);
+        layout.addView(editText, layoutParams);
+        // imageButton 밑에 EditText추가 후 새로운 EditText에 focus 부여
+        editText.setBackgroundResource(android.R.color.transparent);
+        editText.requestFocus();
+        editText.setHint("내용을 입력하세요");
     }
 
     //카테고리 선택시 카테고리 창에 선택된 카테고리 이름 표시
@@ -131,43 +224,33 @@ public class TextActivity extends AppCompatActivity implements View.OnClickListe
                 return false;
         }
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-      if (requestCode == PICK_IMAGE){
+        if (requestCode == PICK_IMAGE){
 
-          imagePath = data.getData();
-          try{
-              Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imagePath);
-              CreateImageView(bitmap);
-              StorageReference ref = storageReference.child("images/"+UUID.randomUUID().toString());
-              ref.putFile(imagePath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                  @Override
-                  public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                      Toast.makeText(TextActivity.this, "Image Uploaded!", Toast.LENGTH_SHORT).show();
-                  }
-              }).addOnFailureListener(new OnFailureListener() {
-                  @Override
-                  public void onFailure(@NonNull Exception e) {
-                      Toast.makeText(TextActivity.this, "Failed", Toast.LENGTH_SHORT).show();
-                  }
-              });
-          }
-          catch (IOException e){
-              e.printStackTrace();
-          }
+            imagePath = data.getData();
+            try{
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imagePath);
+                CreateimageButton(bitmap, imagePath);
+                StorageReference ref = storageReference.child("images/"+UUID.randomUUID().toString());
+                ref.putFile(imagePath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        Toast.makeText(TextActivity.this, "이미지를 길게 누르면 삭제됩니다", Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(TextActivity.this, "Failed", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+            catch (IOException e){
+                e.printStackTrace();
+            }
         }
-    }
-    // bitmap을 받아 imageview를 layout에 추가하고, 글을 입력할 수 있는 editText도 함께 추가.
-    void CreateImageView(Bitmap bitmap){
-        ImageView imageView = new ImageView(this);
-        EditText editText = new EditText(this);
-
-        imageView.setImageBitmap(bitmap);
-        layout.addView(imageView, layoutParams);
-        layout.addView(editText, layoutParams);
-        // imageView 밑에 EditText추가 후 새로운 EditText에 focus 부여
-        editText.requestFocus();
     }
 
 }
