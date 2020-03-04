@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.Post;
 
 import android.net.Uri;
 
