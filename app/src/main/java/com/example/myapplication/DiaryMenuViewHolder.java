@@ -12,9 +12,12 @@ public class DiaryMenuViewHolder extends RecyclerView.ViewHolder{
     public TextView content;
     public TextView num_heart;
     public TextView num_comment;
+    public ImageView imageView;
+
 
     public DiaryMenuViewHolder(@NonNull View itemView) {
         super(itemView);
+        imageView = itemView.findViewById(R.id.diary_menu_pic);
         title=itemView.findViewById(R.id.diary_menu_title);
         content=itemView.findViewById(R.id.diary_menu_content);
         num_heart=itemView.findViewById(R.id.diary_text_heart_num);

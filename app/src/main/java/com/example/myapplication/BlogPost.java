@@ -1,5 +1,7 @@
 package com.example.myapplication;
 
+import android.net.Uri;
+
 import java.sql.Timestamp;
 
 public class BlogPost {
@@ -27,15 +29,24 @@ public class BlogPost {
         this.author_account = author_account;
         this.title = title;
         this.category = category;
-        this.date = date;
+     //   this.date = date;
         this.type = TITLE;
     }
-    public BlogPost(int num, int type,  String content){
+    public BlogPost(int num, int type,  Uri img_url){
         this.num = num;
         this.type = type;
-        this.content = content;
+       // this.img_url = img_url;
     }
-    public BlogPost(int name, int type){
+    public BlogPost(int num, int type, String content){
+        this.num = num;
+        this.type=type;
+        if(type==BlogPost.TEXT){
+            this.content=content;
+        }else{
+            this.img_url = content;
+        }
+    }
+    public BlogPost(int num, int type){
         this.num = num;
         this.type = type;
     }

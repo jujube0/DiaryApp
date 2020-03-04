@@ -31,7 +31,7 @@ public class DiaryActivity extends AppCompatActivity implements View.OnClickList
         TextView clickView = findViewById(R.id.diary_top_text_clickNum);
 
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
-        Query post_q = ref.child("blogPosts");
+
     }
 
     @Override

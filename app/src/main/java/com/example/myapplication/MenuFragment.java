@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MenuFragment extends Fragment {
-
+/*
     private RecyclerView mRecyclerView;
     private Diary_MenuAdapter adapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -82,6 +82,6 @@ class Diary_MenuAdapter extends RecyclerView.Adapter<DiaryMenuViewHolder> {
     @Override
     public int getItemCount() {
         return list.size();
-    }
+    }*/
 }
 
