@@ -150,7 +150,8 @@ public class TextActivity extends AppCompatActivity implements View.OnClickListe
                 mDatabase.push().setValue(posts);
 
                 // 완료되면 완료 Toast.
-                Toast.makeText(this, "포스팅 완료", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "작성이 완료되었습니다.", Toast.LENGTH_SHORT).show();
+                finish();
             }else{
                 Toast.makeText(this, "제목을 입력하세요", Toast.LENGTH_SHORT).show();
             }

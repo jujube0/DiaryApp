@@ -41,7 +41,7 @@
                 android:layout_below="@id/diary_comment_title"
                 android:background="#bdbdbd"/>
 
-            <com.example.myapplication.NonScrollExpandableListView
+            <com.example.myapplication.Post.NonScrollExpandableListView
                 android:id="@+id/diary_comment_content_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

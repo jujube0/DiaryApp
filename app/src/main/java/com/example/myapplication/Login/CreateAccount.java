@@ -3,16 +3,16 @@ package com.example.myapplication.Login;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.myapplication.MainActivity;
+import com.example.myapplication.Main.MainActivity;
 import com.example.myapplication.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -29,6 +29,7 @@ public class CreateAccount extends AppCompatActivity implements View.OnClickList
     private EditText getName;
     private Button backToLogin;
     private Button createAccount;
+    private ProgressBar progressBar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +41,7 @@ public class CreateAccount extends AppCompatActivity implements View.OnClickList
         backToLogin.setOnClickListener(this);
         createAccount = findViewById(R.id.cre_btn_create);
         createAccount.setOnClickListener(this);
+        progressBar=findViewById(R.id.cre_progressBar);
 
         mAuth=FirebaseAuth.getInstance();
     }
@@ -64,6 +66,7 @@ public class CreateAccount extends AppCompatActivity implements View.OnClickList
             String password = getPassword.getText().toString();
             final String name = getName.getText().toString();
             if(checkEmail(email)&&checkPass(password)&& !TextUtils.isEmpty(name)) {
+                progressBar.setVisibility(View.VISIBLE);
                 mAuth = FirebaseAuth.getInstance();
                 mAuth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -83,7 +86,7 @@ public class CreateAccount extends AppCompatActivity implements View.OnClickList
                                 }
                             }
                         });
-
+                progressBar.setVisibility(View.INVISIBLE);
             }else{
                 if(!checkEmail(email)){
                     Toast.makeText(CreateAccount.this, "email이 올바르지 않습니다", Toast.LENGTH_LONG).show();

@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.Post;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;

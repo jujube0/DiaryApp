@@ -26,7 +26,7 @@ public class MenuFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.activity_diary_menu, container);
+        View view = inflater.inflate(R.layout.long_para_menu, container);
         mRecyclerView=(RecyclerView)view.findViewById(R.id.diary_menu_recyclerView);
 
         List<DriveDiaryMenu> list = new ArrayList<>();
