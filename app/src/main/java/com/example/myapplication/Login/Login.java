@@ -28,7 +28,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
     private EditText getPass;
     private Button create_btn;
     private Button login_btn;
-    private TextView textView;
     private FirebaseAuth mAuth;
 
     private ProgressBar loginProgress;
@@ -49,7 +48,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         login_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 String email = getEmail.getText().toString();
                 String pass = getPass.getText().toString();
                 if(!TextUtils.isEmpty(email)&&!TextUtils.isEmpty(pass)){
@@ -66,7 +64,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                         }
                     });
                     loginProgress.setVisibility(View.INVISIBLE);
-
                 }
             }
         });

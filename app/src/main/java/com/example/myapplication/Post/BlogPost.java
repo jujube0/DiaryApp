@@ -5,6 +5,7 @@ import android.net.Uri;
 import java.sql.Timestamp;
 
 public class BlogPost {
+    public String key;
     // content의 순서. title은 0
     public int num;
     //작성자

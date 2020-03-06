@@ -55,8 +55,6 @@ public class TextActivity extends AppCompatActivity implements View.OnClickListe
     TextView set_category;
 
     private FirebaseDatabase firebaseDatabase;
-    List<BlogPost> blogPosts = new ArrayList<>();
-
     String category;
     //새로운 image가 들어있는 imageButton를 추가할 layout
     LinearLayout layout;
@@ -71,11 +69,9 @@ public class TextActivity extends AppCompatActivity implements View.OnClickListe
     public static final int PICK_IMAGE = 1;
     // image저장 path
     private String imagePath;
-    private DatabaseReference databaseReference; /////////////////////////////-성은 추가
 
     StorageReference storageReference;
     FirebaseStorage storage;
-    Queue<String> content;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +95,6 @@ public class TextActivity extends AppCompatActivity implements View.OnClickListe
         contents = new HashMap<>();
 
         firebaseDatabase = FirebaseDatabase.getInstance();
-        databaseReference = firebaseDatabase.getReference(); /////////////////////////////-성은 추가
 
     }
 
@@ -158,10 +153,10 @@ public class TextActivity extends AppCompatActivity implements View.OnClickListe
 
             //이미지 추가 버튼
         }else if(view == img_addBtn){
-//            Intent intent = new Intent();
-//            intent.setType("image/*");
-//            intent.setAction(Intent.ACTION_GET_CONTENT);
-//            startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
+/*            Intent intent = new Intent();
+            intent.setType("image/*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);*/
             Intent intent = new Intent(Intent.ACTION_PICK);
             intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
             startActivityForResult(intent, PICK_IMAGE);
@@ -221,54 +216,6 @@ public class TextActivity extends AppCompatActivity implements View.OnClickListe
         editText.requestFocus();
         editText.setHint("내용을 입력하세요");
     }
-//*/
-/*
-    // bitmap을 받아 imageButton를 layout에 추가하고, 글을 입력할 수 있는 editText도 함께 추가.
-    void CreateimageButton2(String imgPath){
-        final ImageButton imageButton = new ImageButton(this);
-        imageButton.setId(content_num);
-        imageButton.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        contents.put(content_num, new BlogPost(content_num, BlogPost.IMAGE, imgPath));
-        // 이미지 삭제 기능 추가
-        imageButton.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                Snackbar.make(v, "이미지를 삭제하시겠습니까?", Snackbar.LENGTH_LONG).setAction("네", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        imageButton.setVisibility(GONE);
-                        contents.remove(imageButton.getId());
-                    }
-                }).show();
-                return false;
-            }
-        });
-        content_num++;
-        final EditText editText = new EditText(this);
-
-        // backspace를 만나면 EditText 없어지기 기능 추가
-        editText.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if(keyCode == KeyEvent.KEYCODE_DEL&&(content_num-1)!=editText.getId()){
-                    editText.setVisibility(GONE);
-                }
-                return false;
-            }
-        });
-        editText.setId(content_num);
-        contents.put(content_num, new BlogPost(content_num, BlogPost.TEXT));
-        content_num++;
-        layout.addView(imageButton, layoutParams);
-        layout.addView(editText, layoutParams);
-        File file = new File(imgPath);
-        //Glide.with().load(R.drawable.background).into(R.id.(content_num-2));
-        // imageButton 밑에 EditText추가 후 새로운 EditText에 focus 부여
-        editText.setBackgroundResource(android.R.color.transparent);
-        editText.requestFocus();
-        editText.setHint("내용을 입력하세요");
-    }*/
-
     //카테고리 선택시 카테고리 창에 선택된 카테고리 이름 표시
     @Override
     public boolean onMenuItemClick(MenuItem item) {
@@ -300,36 +247,6 @@ public class TextActivity extends AppCompatActivity implements View.OnClickListe
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE){
             imagePath = getPath(data.getData());
-//            StorageReference ref = storageReference.child("images/"+UUID.randomUUID().toString()+".jpg");
-//            ref.putFile(data.getData()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-//                    @Override
-//                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-//                        Toast.makeText(TextActivity.this, "이미지를 길게 누르면 삭제됩니다", Toast.LENGTH_SHORT).show();
-//
-//                    }
-//                }).addOnFailureListener(new OnFailureListener() {
-//                    @Override
-//                    public void onFailure(@NonNull Exception e) {
-//                        Toast.makeText(TextActivity.this, "Failed", Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-            //CreateimageButton2(imagePath);
-          /*  final StorageReference ref = storageReference.child("images/"+imagePath.getLastPathSegment());
-            UploadTask uploadTask = ref.putFile(imagePath);
-            uploadTask.addOnSuccessListener(this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                        @Override
-                        public void onSuccess(Uri uri) {
-                            DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("images");
-                            mDatabase.push().setValue(uri);
-                            MakeImageButton(uri);
-
-                        }
-                    });
-                }
-            });*/
 
 // upload
             try{
@@ -337,7 +254,6 @@ public class TextActivity extends AppCompatActivity implements View.OnClickListe
                 StorageReference storageReference = storage.getReferenceFromUrl("gs://myapplication-f3f26.appspot.com");
 
                 final Uri file = Uri.fromFile(new File(imagePath));
-                // 데이터베이스에 잘못된 url가 들어가있다.
                 final StorageReference riversRef = storageReference.child("blogPosts/" + file.getLastPathSegment());
 
                 riversRef.putFile(data.getData()).addOnFailureListener(new OnFailureListener() {

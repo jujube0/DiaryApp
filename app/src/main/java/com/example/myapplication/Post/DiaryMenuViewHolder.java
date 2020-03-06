@@ -1,11 +1,14 @@
-package com.example.myapplication;
+package com.example.myapplication.Post;
 
+import android.content.Intent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.myapplication.R;
 
 public class DiaryMenuViewHolder extends RecyclerView.ViewHolder{
     public TextView title;
@@ -22,5 +25,6 @@ public class DiaryMenuViewHolder extends RecyclerView.ViewHolder{
         content=itemView.findViewById(R.id.diary_menu_content);
         num_heart=itemView.findViewById(R.id.diary_text_heart_num);
         num_comment=itemView.findViewById(R.id.diary_text_comment_num);
+
     }
 }

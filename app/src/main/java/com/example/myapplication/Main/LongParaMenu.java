@@ -1,19 +1,21 @@
 package com.example.myapplication.Main;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.example.myapplication.DiaryMenuViewHolder;
+import com.example.myapplication.Post.DiaryActivity;
+import com.example.myapplication.Post.DiaryMenuViewHolder;
 import com.example.myapplication.Post.BlogPost;
 import com.example.myapplication.R;
 import com.google.firebase.database.DataSnapshot;
@@ -47,6 +49,7 @@ public class LongParaMenu extends Fragment {
                 if(dataSnapshot.hasChildren()){
                     for(DataSnapshot child: dataSnapshot.getChildren()){
                         BlogPost post = child.child(""+0).getValue(BlogPost.class);
+                        post.key=child.getKey();
                         list.add(post);
                     }
                 }
@@ -80,22 +83,29 @@ class DiaryMenuAdapter extends RecyclerView.Adapter<DiaryMenuViewHolder>{
 
 
     @Override
-    public DiaryMenuViewHolder onCreateViewHolder(ViewGroup parent, int i) {
+    public DiaryMenuViewHolder onCreateViewHolder(final ViewGroup parent, int i) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.diary_menu_recyclerview_item, parent,false);
+
         return new DiaryMenuViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final DiaryMenuViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final DiaryMenuViewHolder holder, final int position) {
         final BlogPost vo = list.get(position);
-
         holder.title.setText(vo.title);
         holder.content.setText(vo.content);
         Glide.with(holder.itemView.getContext()).load(vo.img_url).into(holder.imageView);
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent postIntent = new Intent(holder.itemView.getContext(), DiaryActivity.class);
+                postIntent.putExtra("key", vo.key);
+                holder.itemView.getContext().startActivity(postIntent);
+            }
+        });
 
     }
-
     @Override
     public int getItemCount() {
         return list.size();
