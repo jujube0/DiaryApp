@@ -17,6 +17,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MenuFragment extends Fragment {
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View v = inflater.inflate(R.layout.tempate_for_diary, container);
+        return super.onCreateView(inflater, container, savedInstanceState);
+    }
+
+}
 /*
     private RecyclerView mRecyclerView;
     private Diary_MenuAdapter adapter;
@@ -83,5 +91,5 @@ class Diary_MenuAdapter extends RecyclerView.Adapter<DiaryMenuViewHolder> {
     public int getItemCount() {
         return list.size();
     }*/
-}
+
 

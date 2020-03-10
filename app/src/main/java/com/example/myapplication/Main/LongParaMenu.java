@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -26,12 +27,14 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
-
 public class LongParaMenu extends Fragment {
 
 
     private DatabaseReference ref;
+    RecyclerView menuRecyclerView;
 
+
+    private List<BlogPost> list = new ArrayList<>();
     public LongParaMenu() {
     }
 
@@ -39,9 +42,15 @@ public class LongParaMenu extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         final View v = inflater.inflate(R.layout.long_para_menu, container);
+        menuRecyclerView= v.findViewById(R.id.diary_menu_recyclerView);
 
-        final List<BlogPost> list = new ArrayList<>();
 
+        return super.onCreateView(inflater, container, savedInstanceState);
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
         ref = FirebaseDatabase.getInstance().getReference().child("blogPosts");
         ref.addValueEventListener(new ValueEventListener() {
             @Override
@@ -54,7 +63,6 @@ public class LongParaMenu extends Fragment {
                     }
                 }
 
-                RecyclerView menuRecyclerView=v.findViewById(R.id.diary_menu_recyclerView);
                 RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
                 menuRecyclerView.setLayoutManager(mLayoutManager);
                 DiaryMenuAdapter adapter = new DiaryMenuAdapter(list);
@@ -67,11 +75,10 @@ public class LongParaMenu extends Fragment {
 
             }
         });
-
-        return super.onCreateView(inflater, container, savedInstanceState);
     }
-
 }
+
+
 class DiaryMenuAdapter extends RecyclerView.Adapter<DiaryMenuViewHolder>{
 
     private List<BlogPost> list;

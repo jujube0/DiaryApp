@@ -13,7 +13,7 @@ import android.widget.FrameLayout;
 import com.example.myapplication.Main.LongParaMenu;
 import com.example.myapplication.Main.ShortParaMenu;
 
-public class StorageActivity extends AppCompatActivity {
+public class sdfsdfsdfs extends AppCompatActivity {
 
     Button btn1;
     Button btn2;
@@ -23,7 +23,7 @@ public class StorageActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_storage);
+        setContentView(R.layout.activity_sdfsdfsdfs);
         btn1=findViewById(R.id.btn1);
         btn2=findViewById(R.id.btn2);
         frameLayout=findViewById(R.id.framelayout);

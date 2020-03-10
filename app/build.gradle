@@ -38,7 +38,10 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'de.hdodenhof:circleimageview:3.0.0'
-    implementation "androidx.recyclerview:recyclerview:1.1.0"
-    implementation 'com.github.bumptech.glide:glide:4.9.0'
+    implementation "androidx.cardview:cardview:1.0.0"
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'com.firebaseui:firebase-ui-database:6.2.0'
+    implementation 'com.firebaseui:firebase-ui-firestore:6.2.0'
+    implementation 'com.github.bumptech.glide:glide:4.9.0' //bumped from 4.8.0 to 4.9.0
     annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
 }

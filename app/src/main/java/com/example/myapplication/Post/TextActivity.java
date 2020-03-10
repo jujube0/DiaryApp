@@ -253,8 +253,8 @@ public class TextActivity extends AppCompatActivity implements View.OnClickListe
                 final Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
                 StorageReference storageReference = storage.getReferenceFromUrl("gs://myapplication-f3f26.appspot.com");
 
-                final Uri file = Uri.fromFile(new File(imagePath));
-                final StorageReference riversRef = storageReference.child("blogPosts/" + file.getLastPathSegment());
+               // final Uri file = Uri.fromFile(new File(imagePath));
+                final StorageReference riversRef = storageReference.child("blogPosts/" + data.getData().getLastPathSegment());
 
                 riversRef.putFile(data.getData()).addOnFailureListener(new OnFailureListener() {
                     @Override

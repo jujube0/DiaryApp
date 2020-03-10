@@ -7,6 +7,7 @@ public class ShortPost {
     public String img_url;
     public String content;
 
+    public ShortPost(){}
     public ShortPost(long date, String img_url, String content) {
         this.date = date;
         this.img_url = img_url;
@@ -16,5 +17,10 @@ public class ShortPost {
     public ShortPost(long date, String content) {
         this.date = date;
         this.content = content;
+    }
+
+    public ShortPost(String date, String content) {
+        this.content=content;
+        this.date=Long.parseLong(date);
     }
 }

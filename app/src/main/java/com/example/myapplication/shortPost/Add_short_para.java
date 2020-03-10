@@ -42,7 +42,6 @@ public class Add_short_para extends AppCompatActivity implements View.OnClickLis
     final private int PICK_IMAGE = 1;
     // 사진저장
     private Uri imagePath;
-    private Uri url;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,13 +65,16 @@ public class Add_short_para extends AppCompatActivity implements View.OnClickLis
             String content = editText.getText().toString();
             ShortPost post;
             if(!(imagePath==null)){
-                String image_url = UploadImage(imagePath);
-                post = new ShortPost(System.currentTimeMillis(), image_url, content);
+                UploadImage(imagePath, content);
+                finish();
+            //    String path = (String)imageView.getTag();
+            //    post = new ShortPost(System.currentTimeMillis(), path, content);
             }else{
                 post = new ShortPost(System.currentTimeMillis(), content);
+                addPost(post);
+                finish();
             }
-            addPost(post);
-            finish();
+            ;
         }
     }
 
@@ -100,39 +102,38 @@ public class Add_short_para extends AppCompatActivity implements View.OnClickLis
         }
     }
 // 사진 추가
-    private String UploadImage(Uri imagePath){
+    private void UploadImage(final Uri imagePath, final String content){
         StorageReference storageReference = FirebaseStorage.getInstance()
                 .getReferenceFromUrl("gs://myapplication-f3f26.appspot.com");
       //  final StorageReference riversRef = storageReference.child("shortPosts/"+UUID.randomUUID());
-        final Uri file = Uri.fromFile(new File(getPath(imagePath)));
-        final StorageReference riversRef = storageReference.child("shortPosts/" + file.getLastPathSegment());
+    //    final Uri file = Uri.fromFile(new File(getPath(imagePath)));
+
+        final StorageReference riversRef = storageReference.child("shortPosts/" + imagePath.getLastPathSegment());
         riversRef.putFile(imagePath).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(Add_short_para.this,"test fail",Toast.LENGTH_SHORT).show();
+                Toast.makeText(Add_short_para.this,"이미지를 다시 업로드해주세요",Toast.LENGTH_SHORT).show();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 Task<Uri> uri = taskSnapshot.getStorage().getDownloadUrl();
                 while(!uri.isComplete());
-                url = uri.getResult();
+                Uri url = uri.getResult();
+                //imageView.setTag(url.toString());
+                ShortPost post = new ShortPost(System.currentTimeMillis(), url.toString(), content);
+                addPost(post);
 //                        SetImage(bitmap, url.toString());
             }
         });
-        if(url!=null){
-            return url.toString();
-        }else{
-            return "";
-        }
     }
 
-    public String getPath(Uri uri){
+/*    public String getPath(Uri uri){
         String[] proj = {MediaStore.Images.Media.DATA};
         CursorLoader cursorLoader = new CursorLoader(this, uri, proj, null, null, null);
         Cursor cursor = cursorLoader.loadInBackground();
         int index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
         cursor.moveToFirst();
         return cursor.getString(index);
-    }
+    }*/
 }
