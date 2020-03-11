@@ -10,7 +10,7 @@ public class BlogPost {
     public int num;
     //작성자
     public String author_account;
-    public Timestamp date;
+    public long date;
     public String title;
     public String category;
 
@@ -25,18 +25,13 @@ public class BlogPost {
 
 
 
-    public BlogPost(String author_account, String title, String category, Timestamp date) {
+    public BlogPost(String author_account, String title, String category, long date) {
         this.num = 0;
         this.author_account = author_account;
         this.title = title;
         this.category = category;
-     //   this.date = date;
+        this.date = date;
         this.type = TITLE;
-    }
-    public BlogPost(int num, int type,  Uri img_url){
-        this.num = num;
-        this.type = type;
-       // this.img_url = img_url;
     }
     public BlogPost(int num, int type, String content){
         this.num = num;

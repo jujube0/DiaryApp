@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@color/colorBackground">
 
     <LinearLayout
@@ -88,57 +89,17 @@
             android:layout_marginRight="20dp"
             android:background="@drawable/btn_edge_rounded"
             android:text="긴 글 쓰기" />
-        <View
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabs"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginBottom="10dp"
-            android:background="#8d8d8d"
-            android:layout_marginTop="10dp"/>
+            android:layout_height="wrap_content"/>
 
-
-        <LinearLayout
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/viewPager"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:orientation="horizontal"
-            android:gravity="center_horizontal">
-
-            <TextView
-                android:id="@+id/main_show_shortPara"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:textStyle="bold"
-                android:gravity="center_horizontal"
-                android:text="짧은 글 보기" />
-
-            <View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:background="#8d8d8d" />
-
-            <TextView
-                android:id="@+id/main_show_longPara"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:gravity="center_horizontal"
-                android:textStyle="bold"
-                android:text="긴 글 보기" />
-
-        </LinearLayout>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#8d8d8d" />
-        <FrameLayout
-            android:id="@+id/main_frameLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"/>
+            android:layout_weight="1" />
 
 
     </LinearLayout>
-</ScrollView>
+</LinearLayout>

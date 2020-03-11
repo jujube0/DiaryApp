@@ -28,9 +28,9 @@ import java.util.List;
 
 public class sdfsdfsdfs extends FragmentActivity {
 
-    static final int NUM_ITENS = 2;
+    static final int NUM_ITEMS = 2;
     ViewPager viewPager;
-    private MyPagerAdapter adapter;
+    private PagerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,77 +38,53 @@ public class sdfsdfsdfs extends FragmentActivity {
         setContentView(R.layout.activity_sdfsdfsdfs);
 
         viewPager = findViewById(R.id.viewPager);
-        adapter = new MyPagerAdapter(getSupportFragmentManager(), FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+        adapter = new PagerAdapter(getSupportFragmentManager(), FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         viewPager.setAdapter(adapter);
+/*
 
         TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
+*/
 
 
         ;
-       /* adapter=new FragmentPagerAdapter(getSupportFragmentManager(),
-                FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
-            private final Fragment[] mFragments = new Fragment[]{
-                    new MenuFragment(), new LongParaMenu()
-            };
-            private final String[] mFragmentNames = new String[]{
-                    "short", "long"
-            };
-            @NonNull
-            @Override
-            public Fragment getItem(int position) {
-                return mFragments[position];
-            }
-
-            @Override
-            public int getCount() {
-                return mFragments.length;
-            }
-
-            @Nullable
-            @Override
-            public CharSequence getPageTitle(int position) {
-                return mFragmentNames[position];
-            }
-        };
-
-
-    }*/
 
     }
 
-    class MyPagerAdapter extends FragmentPagerAdapter {
-        private List<Fragment> fragments = new ArrayList<>();
-        private List<String> titles = new ArrayList<>();
+       class PagerAdapter extends FragmentPagerAdapter {
+           private List<Fragment> fragments = new ArrayList<>();
+           private List<String> titles = new ArrayList<>();
 
-        public MyPagerAdapter(@NonNull FragmentManager fm, int behavior) {
-            super(fm, behavior);
-            fragments.add(new ShortParaMenu());
-            fragments.add(new MenuFragment());
-            titles.add("short");
-            titles.add("long");
-        }
+           public PagerAdapter(@NonNull FragmentManager fm, int behavior) {
+               super(fm, behavior);
+               fragments.add(new ShortParaMenu());
+               fragments.add(new LongParaMenu());
+               titles.add("short");
+               titles.add("long");
+           }
 
-        @NonNull
-        @Override
-        public Fragment getItem(int position) {
-            return fragments.get(position);
-        }
+           @NonNull
+           @Override
+           public Fragment getItem(int position) {
+               return fragments.get(position);
+           }
 
-        @Override
-        public int getCount() {
-            return NUM_ITENS;
-        }
+           @Override
+           public int getCount() {
+               return NUM_ITEMS;
+           }
 
-        @Nullable
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return titles.get(position);
-        }
-        @Override
-        public int getItemPosition(Object object) {
-            return POSITION_NONE;
-        }
+           @Nullable
+           @Override
+           public CharSequence getPageTitle(int position) {
+               return titles.get(position);
+           }
+           @Override
+           public int getItemPosition(Object object) {
+               return POSITION_NONE;
+           }
+       }
     }
-}
+
+

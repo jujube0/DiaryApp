@@ -1,50 +1,58 @@
 package com.example.myapplication.Main;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
-
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+
 import com.example.myapplication.InformationActivity;
 import com.example.myapplication.Login.Login;
-import com.example.myapplication.MenuFragment;
 import com.example.myapplication.Post.Add_long_para;
 import com.example.myapplication.R;
 import com.example.myapplication.shortPost.Add_short_para;
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends FragmentActivity implements View.OnClickListener {
 
+    static final int NUM_ITEMS = 2;
+    ViewPager viewPager;
+    private MyPagerAdapter adapter;
+    private TabLayout tabLayout;
+
     private CircleImageView mainImageView;
     private TextView main_textView_name;
     private TextView main_logout;
-    private TextView showShortPara;
-    private TextView showLongPara;
+ //   private TextView showShortPara;
+  //  private TextView showLongPara;
     private Button writeLongPara;
     private Button writeShortPara;
-
     private FirebaseUser user;
-    private FragmentManager fragmentManager;
+   // private FragmentManager fragmentManager;
     // 한 번만 초기화하면오류남
-    private FragmentTransaction fragmentTransaction;
-    private  boolean isShowingLongPara;
+    //private FragmentTransaction fragmentTransaction;
+    //private  boolean isShowingLongPara;
 /*    private LongParaMenu LongPara;
     private ShortParaMenu ShortPara;*/
-
-    ShortParaMenu shortPara;
-    LongParaMenu longPara;
 
 
     @Override
@@ -59,7 +67,11 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         main_logout = findViewById(R.id.main_logout);
         main_logout.setOnClickListener(this);
 
-        fragmentManager=getSupportFragmentManager();
+        viewPager = findViewById(R.id.viewPager);
+
+        tabLayout = findViewById(R.id.tabs);
+/*
+   //     fragmentManager=getSupportFragmentManager();
         shortPara = new ShortParaMenu();
         longPara = new LongParaMenu();
         // 짧은글 보기가 첫 화면.
@@ -86,8 +98,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     isShowingLongPara=true;
                 };
             }
-        });
-
+        });*/
         //글쓰기 버튼
         writeShortPara = findViewById(R.id.main_btn_writeShort);
         writeShortPara.setOnClickListener(new View.OnClickListener() {
@@ -105,8 +116,16 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 startActivity(intent);
             }
         });
+
+        //tablayout구현;
+        adapter = new MyPagerAdapter(getSupportFragmentManager(), FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+        viewPager.setAdapter(adapter);
+        tabLayout.setupWithViewPager(viewPager);
+        //progressBar.setVisibility(View.GONE);
+
     }
 
+/*  framelayout
     private void switchFragment(Fragment fragment) {
 
         fragmentManager=getSupportFragmentManager();
@@ -114,12 +133,12 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         fragmentTransaction=fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.main_frameLayout, fragment);
         fragmentTransaction.commit();
-    }
+    }*/
 
     @Override
     protected void onStart(){
         super.onStart();
-        user =FirebaseAuth.getInstance().getCurrentUser();
+        user = FirebaseAuth.getInstance().getCurrentUser();
         if(user == null){
             // User is signed in
             toLogin();
@@ -132,6 +151,12 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         startActivity(LoginIntent);
         finish();
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
     @Override
     public void onClick(View v) {
         if(v==mainImageView||v==main_textView_name){
@@ -144,6 +169,41 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             toLogin();
         }
 
+    }
+
+    class MyPagerAdapter extends FragmentPagerAdapter {
+
+        private List<Fragment> fragments = new ArrayList<>();
+        private List<String> titles = new ArrayList<>();
+
+        public MyPagerAdapter(@NonNull FragmentManager fm, int behavior) {
+            super(fm, behavior);
+            fragments.add(new ShortParaMenu());
+            fragments.add(new LongParaMenu());
+            titles.add("short");
+            titles.add("long");
+        }
+
+        @NonNull
+        @Override
+        public Fragment getItem(int position) {
+            return fragments.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return NUM_ITEMS;
+        }
+
+        @Nullable
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return titles.get(position);
+        }
+        @Override
+        public int getItemPosition(Object object) {
+            return POSITION_NONE;
+        }
     }
 
 }

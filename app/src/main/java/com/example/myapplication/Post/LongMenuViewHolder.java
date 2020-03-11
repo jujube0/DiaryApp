@@ -16,6 +16,7 @@ public class LongMenuViewHolder extends RecyclerView.ViewHolder{
     public TextView num_heart;
     public TextView num_comment;
     public ImageView imageView;
+    public TextView date;
 
 
     public LongMenuViewHolder(@NonNull View itemView) {
@@ -25,6 +26,7 @@ public class LongMenuViewHolder extends RecyclerView.ViewHolder{
         content=itemView.findViewById(R.id.diary_menu_content);
         num_heart=itemView.findViewById(R.id.diary_text_heart_num);
         num_comment=itemView.findViewById(R.id.diary_text_comment_num);
+        date=itemView.findViewById(R.id.diary_text_date);
 
     }
 }

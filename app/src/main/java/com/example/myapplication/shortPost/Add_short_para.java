@@ -12,12 +12,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.myapplication.Main.MainActivity;
 import com.example.myapplication.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -27,6 +30,8 @@ import com.google.firebase.storage.UploadTask;
 import java.io.IOException;
 
 public class Add_short_para extends AppCompatActivity implements View.OnClickListener {
+
+    FirebaseAuth auth;
 
     private EditText editText;
     private ImageView imageView;
@@ -39,6 +44,8 @@ public class Add_short_para extends AppCompatActivity implements View.OnClickLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_short_para);
+
+        auth=FirebaseAuth.getInstance();
         editText=findViewById(R.id.add_short_content);
         imageView=findViewById(R.id.add_short_image);
         btn_comfirm=findViewById(R.id.add_short_confirm);
@@ -46,6 +53,12 @@ public class Add_short_para extends AppCompatActivity implements View.OnClickLis
         btn_addImage=findViewById(R.id.add_short_add_photo);
         btn_addImage.setOnClickListener(this);
         //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Toast.makeText(this, "짧은글은 글 30줄과 사진 한 장으로 제한됩니다", Toast.LENGTH_LONG);
     }
 
     @Override
@@ -59,20 +72,22 @@ public class Add_short_para extends AppCompatActivity implements View.OnClickLis
             ShortPost post;
             if(!(imagePath==null)){
                 UploadImage(imagePath, content);
-                finish();
             //    String path = (String)imageView.getTag();
             //    post = new ShortPost(System.currentTimeMillis(), path, content);
             }else{
                 post = new ShortPost(System.currentTimeMillis(), content);
                 addPost(post);
-                finish();
             }
-            ;
+            Toast.makeText(Add_short_para.this, "작성이 완료되었습니다", Toast.LENGTH_SHORT).show();
+            finish();
         }
     }
 
+
     private void addPost(ShortPost post) {
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("shortPosts");
+        String user_id = auth.getCurrentUser().getUid();
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("shortPosts")
+                .child(user_id);
         mDatabase.push().setValue(post);
     }
 

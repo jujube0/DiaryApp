@@ -5,13 +5,16 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.myapplication.R;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -22,7 +25,8 @@ public class ShowLongPost extends AppCompatActivity implements View.OnClickListe
 
     private String key;
     private LinearLayout layout;
-    private LinearLayout.LayoutParams layoutParams;
+    private LinearLayout.LayoutParams textParams;
+    private LinearLayout.LayoutParams imageParams;
 
     private ImageView commentBtn;
     private TextView category;
@@ -35,17 +39,24 @@ public class ShowLongPost extends AppCompatActivity implements View.OnClickListe
         commentBtn = findViewById(R.id.diary_image_comment);
         commentBtn.setOnClickListener(this);
         layout = findViewById(R.id.diary_layout_content);
-        layoutParams = new LinearLayout.LayoutParams(
+
+        textParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.MATCH_PARENT
         );
+        //value를 dp로 바꾸는 법
+
+        imageParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, toDp(350)
+        );
+        //layoutParams=new LinearLayout.LayoutParams(250, ViewGroup.LayoutParams.MATCH_PARENT);
         title = findViewById(R.id.diary_text_title);
         category = findViewById(R.id.diary_top_category);
 
         Intent intent = getIntent();
         key = intent.getStringExtra("key");
-
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("blogPosts").child(key);
+        String user_id= FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("blogPosts").child(user_id).child(key);
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -74,24 +85,23 @@ public class ShowLongPost extends AppCompatActivity implements View.OnClickListe
     }
 
     private void addImageView(String url) {
-      /*  ImageView imageView = new ImageView(ShowLongPost.this);
-        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Glide.with(ShowLongPost.this).load(url).into(imageView);
-        layout.addView(imageView, layoutParams);*/
-
       ImageView imageView = new ImageView(ShowLongPost.this);
-      imageView.setVisibility(View.VISIBLE);
-      imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-      imageView.setLayoutParams(layoutParams);
-      Glide.with(ShowLongPost.this).load(url).into(imageView);
-      layout.addView(imageView);
+      imageParams.setMargins(0,toDp(10),0,toDp(10));
+      Glide.with(this).load(url).into(imageView);
+      layout.addView(imageView, imageParams);
+    }
+
+
+    private int toDp(int value){
+       return  (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, getResources().getDisplayMetrics());
+
     }
 
 
     private void addTextView(String content) {
         TextView textView = new TextView(ShowLongPost.this);
         textView.setText(content);
-        layout.addView(textView, layoutParams);
+        layout.addView(textView, textParams);
     }
     @Override
     public void onClick(View view) {

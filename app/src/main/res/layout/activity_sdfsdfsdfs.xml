@@ -4,11 +4,11 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
   <com.google.android.material.tabs.TabLayout
-     android:id="@+id/tabs"
+     android:id="@+id/test_tabs"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"/>
    <androidx.viewpager.widget.ViewPager
-      android:id="@+id/viewPager"
+      android:id="@+id/test_viewPager"
        android:layout_width="match_parent"
        android:layout_height="wrap_content"/>
 

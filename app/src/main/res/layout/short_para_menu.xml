@@ -3,9 +3,19 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@color/colorBackground">
+    <TextView
+        android:id="@+id/short_menu_empty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_weight="1"
+        android:visibility="gone"
+        android:text="게시글이 없습니다 게시글을 추가해주세요"/>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/short_menu_recycler"
+        android:layout_marginTop="5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

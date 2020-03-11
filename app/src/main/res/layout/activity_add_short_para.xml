@@ -4,20 +4,36 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:layout_gravity="center"
     android:gravity="center_horizontal">
+
+    <Button
+        android:id="@+id/add_short_add_photo"
+        android:layout_width="73dp"
+        android:layout_height="38dp"
+        android:layout_alignBottom="@id/add_short_confirm"
+        android:layout_toLeftOf="@+id/add_short_confirm"
+        android:background="@android:color/transparent"
+        android:stateListAnimator="@null"
+        android:text="사진추가" />
+
+    <Button
+        android:id="@+id/add_short_confirm"
+        android:layout_width="63dp"
+        android:layout_height="38dp"
+        android:layout_alignParentRight="true"
+        android:background="@android:color/transparent"
+        android:stateListAnimator="@null"
+        android:text="작성완료" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="40dp">
+        android:layout_below="@+id/add_short_confirm">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:text="짧은 글 작성은 사진 한 장과 글 서른 줄로 제한됩니다."/>
 
             <ImageView
                 android:id="@+id/add_short_image"
@@ -43,48 +59,5 @@
 
     </ScrollView>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="5dp"
-            android:background="#D3D0D0"
-            android:layout_above="@id/add_short_add_photo"/>
-        <Button
-            android:id="@+id/add_short_add_photo"
-            android:layout_width="73dp"
-            android:layout_height="38dp"
-            android:layout_alignBottom="@id/add_short_confirm"
-            android:layout_toLeftOf="@+id/add_short_confirm"
-            android:background="@android:color/transparent"
-            android:stateListAnimator="@null"
-            android:text="사진추가" />
-
-        <Button
-            android:id="@+id/add_short_confirm"
-            android:layout_width="63dp"
-            android:layout_height="38dp"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true"
-            android:background="@android:color/transparent"
-            android:stateListAnimator="@null"
-            android:text="작성완료" />
-        <Button
-            android:id="@+id/choose_optionBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="38dp"
-            android:layout_marginLeft="5dp"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentBottom="true"
-            android:background="@android:color/transparent"
-            android:stateListAnimator="@null"
-            android:text="글쓰기속성변경" />
-        <ImageButton
-            android:layout_width="15dp"
-            android:layout_height="38dp"
-            android:src="@drawable/ic_keyboard_arrow_up_24px"
-            android:layout_alignParentBottom="true"
-            android:layout_toRightOf="@+id/choose_optionBtn"
-            android:layout_marginLeft="5dp"
-            android:background="@android:color/transparent"/>
 
     </RelativeLayout>

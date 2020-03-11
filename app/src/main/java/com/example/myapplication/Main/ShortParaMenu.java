@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,20 +19,24 @@ import com.example.myapplication.R;
 import com.example.myapplication.shortPost.ShortPost;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class ShortParaMenu extends Fragment {
-    private static final String TAG ="ShortParaMenu";
-    private DatabaseReference ref;
+
     private FirebaseRecyclerAdapter<ShortPost, ShortMenuHolders> adapter;
     private RecyclerView mRecycler;
     private LinearLayoutManager mManager;
+    private TextView empty_message;
 
     public ShortParaMenu() {}
 
@@ -40,9 +45,10 @@ public class ShortParaMenu extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         View rootView=inflater.inflate(R.layout.short_para_menu, container, false);
-        ref=FirebaseDatabase.getInstance().getReference();
-
+        empty_message=rootView.findViewById(R.id.short_menu_empty);
         mRecycler=rootView.findViewById(R.id.short_menu_recycler);
+        empty_message.setVisibility(View.GONE);
+
         //mRecycler.setHasFixedSize(true);
 
         //return super.onCreateView(inflater, container, savedInstanceState);
@@ -55,13 +61,22 @@ public class ShortParaMenu extends Fragment {
         mManager=new LinearLayoutManager(getActivity());
         fetch();
         mRecycler.setLayoutManager(mManager);
-
-
     }
 
     private void fetch() {
-        Query query = FirebaseDatabase.getInstance().getReference().child("shortPosts");
+        String user_id = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        Query query = FirebaseDatabase.getInstance().getReference().child("shortPosts").child(user_id);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(!dataSnapshot.exists()) empty_message.setVisibility(View.VISIBLE);
+            }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
         FirebaseRecyclerOptions<ShortPost> options=
                 new FirebaseRecyclerOptions.Builder<ShortPost>()
                 .setQuery(query, ShortPost.class).build();
@@ -92,21 +107,15 @@ public class ShortParaMenu extends Fragment {
     }
 
     public String longToTime(long time){
-        long diff = (System.currentTimeMillis() - time)/(1000*60);  //minute difference
-        if(diff<60){
-            return diff+"분 전";
-        }else if(diff<60*12){
-            return diff/60 + "시간 전";
-        } else {
-            Date date = new Date(time);
-            Format format = new SimpleDateFormat("MM월 dd일");
-            return format.format(date);
-        }
+        Date date = new Date(time);
+        Format format = new SimpleDateFormat("MM월 dd일");
+        return format.format(date);
     }
 
     @Override
     public void onStart() {
         super.onStart();
+
         adapter.startListening();
     }
 

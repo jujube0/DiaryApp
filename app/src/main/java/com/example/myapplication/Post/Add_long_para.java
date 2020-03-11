@@ -10,10 +10,13 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -23,11 +26,13 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.myapplication.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -60,7 +65,7 @@ public class Add_long_para extends AppCompatActivity implements View.OnClickList
     int content_num = 2;
     HashMap<Integer, BlogPost> contents;
 
-
+    LinearLayout.LayoutParams imageParams;
 
     public static final int PICK_IMAGE = 1;
     // image저장 path
@@ -91,7 +96,9 @@ public class Add_long_para extends AppCompatActivity implements View.OnClickList
         contents = new HashMap<>();
 
         firebaseDatabase = FirebaseDatabase.getInstance();
-
+        imageParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, toDp(350)
+        );
     }
 
     @Override
@@ -107,7 +114,7 @@ public class Add_long_para extends AppCompatActivity implements View.OnClickList
             Map<String, BlogPost> posts = new HashMap<>();
             //제목 넣기. 제목이 없으면 제목 설정하라고 toast
             if(!title.equals("")) {
-                BlogPost mainPost = new BlogPost("김가영", title, category, new Timestamp(System.currentTimeMillis()));
+                BlogPost mainPost = new BlogPost("김가영", title, category, System.currentTimeMillis());
                 //posts.put("0", new BlogPost("김가영", title, category, new Timestamp(System.currentTimeMillis())));
                 // 첫번째 editText의 id 변경
                 EditText first_view = findViewById(R.id.text_content_01);
@@ -116,7 +123,6 @@ public class Add_long_para extends AppCompatActivity implements View.OnClickList
                     posts.put("1", new BlogPost(1, BlogPost.TEXT, t));
                     mainPost.content = t;
                 }
-
 
                 for (int i = 2; i < content_num; i++) {
                     // content를 담고있는 imageButton와 EditText를 순서대로 가져와 넣기
@@ -137,7 +143,8 @@ public class Add_long_para extends AppCompatActivity implements View.OnClickList
                     }
                 }
                 posts.put("0", mainPost);
-                DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("blogPosts");
+                String user_id = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("blogPosts").child(user_id);
                 mDatabase.push().setValue(posts);
 
                 // 완료되면 완료 Toast.
@@ -166,8 +173,55 @@ public class Add_long_para extends AppCompatActivity implements View.OnClickList
         inflater.inflate(R.menu.diary_category_menu, popup.getMenu());
         popup.show();
     }
+    private void addImageView(String imgPath) {
+        final ImageButton imageButton = new ImageButton(this);
+        imageParams.setMargins(0,toDp(10),0,toDp(10));
+        Glide.with(this).load(imgPath).into(imageButton);
+        layout.addView(imageButton, imageParams);
+        imageButton.setId(content_num);
+        contents.put(content_num, new BlogPost(content_num, BlogPost.IMAGE, imgPath));
+        imageButton.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Snackbar.make(v, "이미지를 삭제하시겠습니까?", Snackbar.LENGTH_LONG).setAction("네", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        imageButton.setVisibility(GONE);
+                        contents.remove(imageButton.getId());
+                    }
+                }).show();
+                return false;
+            }
+        });
+        content_num++;
+        final EditText editText = new EditText(this);
+        // backspace를 만나면 없어지기
+        editText.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if(keyCode == KeyEvent.KEYCODE_DEL&&(content_num-1)!=editText.getId()){
+                    editText.setVisibility(GONE);
+                }
+                return false;
+            }
+        });
+        editText.setId(content_num);
+        contents.put(content_num, new BlogPost(content_num, BlogPost.TEXT));
+        content_num++;
 
-    // bitmap을 받아 imageButton를 layout에 추가하고, 글을 입력할 수 있는 editText도 함께 추가.
+        layout.addView(editText, layoutParams);
+        editText.setBackgroundResource(android.R.color.transparent);
+        editText.requestFocus();
+        editText.setHint("내용을 입력하세요");
+
+    }
+    private int toDp(int value){
+        return  (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, getResources().getDisplayMetrics());
+
+    }
+
+    //bitmap은 시간이 너무 오래걸려서 없앴음
+ /*   // bitmap을 받아 imageButton를 layout에 추가하고, 글을 입력할 수 있는 editText도 함께 추가.
     void CreateimageButton(Bitmap bitmap, String imgPath){
         final ImageButton imageButton = new ImageButton(this);
         imageButton.setId(content_num);
@@ -211,7 +265,7 @@ public class Add_long_para extends AppCompatActivity implements View.OnClickList
         editText.setBackgroundResource(android.R.color.transparent);
         editText.requestFocus();
         editText.setHint("내용을 입력하세요");
-    }
+    }*/
     //카테고리 선택시 카테고리 창에 선택된 카테고리 이름 표시
     @Override
     public boolean onMenuItemClick(MenuItem item) {
@@ -243,36 +297,30 @@ public class Add_long_para extends AppCompatActivity implements View.OnClickList
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE){
             imagePath = getPath(data.getData());
+// final Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
+            StorageReference storageReference = storage.getReferenceFromUrl("gs://myapplication-f3f26.appspot.com");
 
-// upload
-            try{
-                final Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
-                StorageReference storageReference = storage.getReferenceFromUrl("gs://myapplication-f3f26.appspot.com");
+            //upload
+            final StorageReference riversRef = storageReference.child("blogPosts/" + data.getData().getLastPathSegment());
 
-               // final Uri file = Uri.fromFile(new File(imagePath));
-                final StorageReference riversRef = storageReference.child("blogPosts/" + data.getData().getLastPathSegment());
+            riversRef.putFile(data.getData()).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(Add_long_para.this,"이미지를 가져오는 데에 실패하였습니다",Toast.LENGTH_SHORT).show();
+                }
+            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    Task<Uri> uri = taskSnapshot.getStorage().getDownloadUrl();
+                    while(!uri.isComplete());
+                    Uri url = uri.getResult();
 
-                riversRef.putFile(data.getData()).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(Add_long_para.this,"test fail",Toast.LENGTH_SHORT).show();
-                    }
-                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        Task<Uri> uri = taskSnapshot.getStorage().getDownloadUrl();
-                        while(!uri.isComplete());
-                        Uri url = uri.getResult();
+                    //CreateimageButton(bitmap, url.toString());
+                    addImageView(url.toString());
+                    Toast.makeText(Add_long_para.this,"이미지를 길게 누르면 삭제됩니다",Toast.LENGTH_SHORT).show();
+                }
+            });
 
-                        CreateimageButton(bitmap, url.toString());
-
-                        Toast.makeText(Add_long_para.this,"testtest",Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-            catch (IOException e){
-                e.printStackTrace();
-            }
         }
     }
 
