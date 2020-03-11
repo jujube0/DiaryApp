@@ -156,7 +156,7 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
             }
 
         }else if(v==toDiary){
-            Intent intent = new Intent(this, DiaryActivity.class);
+            Intent intent = new Intent(this, ShowLongPost.class);
             startActivity(intent);
         }
     }

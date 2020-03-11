@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.R;
 
-public class DiaryMenuViewHolder extends RecyclerView.ViewHolder{
+public class LongMenuViewHolder extends RecyclerView.ViewHolder{
     public TextView title;
     public TextView content;
     public TextView num_heart;
@@ -18,7 +18,7 @@ public class DiaryMenuViewHolder extends RecyclerView.ViewHolder{
     public ImageView imageView;
 
 
-    public DiaryMenuViewHolder(@NonNull View itemView) {
+    public LongMenuViewHolder(@NonNull View itemView) {
         super(itemView);
         imageView = itemView.findViewById(R.id.diary_menu_pic);
         title=itemView.findViewById(R.id.diary_menu_title);

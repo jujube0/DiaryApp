@@ -69,7 +69,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Post.DiaryActivity">
+        <activity android:name=".Post.ShowLongPost">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -83,7 +83,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Post.TextActivity">
+        <activity android:name=".Post.Add_long_para">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

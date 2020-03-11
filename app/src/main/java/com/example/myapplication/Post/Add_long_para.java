@@ -34,20 +34,16 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 
 import static android.view.View.GONE;
 // 사진 크기 맞춰야됨 시부럴
 //삭제 버튼 눌렀을 때 storage에서도 삭제하도록
 
-public class TextActivity extends AppCompatActivity implements View.OnClickListener, PopupMenu.OnMenuItemClickListener {
+public class Add_long_para extends AppCompatActivity implements View.OnClickListener, PopupMenu.OnMenuItemClickListener {
 
     Button text_addBtn;
     Button img_addBtn;
@@ -259,7 +255,7 @@ public class TextActivity extends AppCompatActivity implements View.OnClickListe
                 riversRef.putFile(data.getData()).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(TextActivity.this,"test fail",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Add_long_para.this,"test fail",Toast.LENGTH_SHORT).show();
                     }
                 }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
@@ -270,7 +266,7 @@ public class TextActivity extends AppCompatActivity implements View.OnClickListe
 
                         CreateimageButton(bitmap, url.toString());
 
-                        Toast.makeText(TextActivity.this,"testtest",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Add_long_para.this,"testtest",Toast.LENGTH_SHORT).show();
                     }
                 });
             }

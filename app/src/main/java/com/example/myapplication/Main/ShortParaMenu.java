@@ -10,7 +10,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -19,16 +18,13 @@ import com.example.myapplication.R;
 import com.example.myapplication.shortPost.ShortPost;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.firebase.ui.database.SnapshotParser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class ShortParaMenu extends Fragment {
     private static final String TAG ="ShortParaMenu";
@@ -43,14 +39,14 @@ public class ShortParaMenu extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View rootView=inflater.inflate(R.layout.activity_short_para_menu, container);
+        View rootView=inflater.inflate(R.layout.short_para_menu, container, false);
         ref=FirebaseDatabase.getInstance().getReference();
 
         mRecycler=rootView.findViewById(R.id.short_menu_recycler);
         //mRecycler.setHasFixedSize(true);
 
-        return super.onCreateView(inflater, container, savedInstanceState);
-
+        //return super.onCreateView(inflater, container, savedInstanceState);
+        return rootView;
     }
 
     @Override
@@ -66,8 +62,6 @@ public class ShortParaMenu extends Fragment {
     private void fetch() {
         Query query = FirebaseDatabase.getInstance().getReference().child("shortPosts");
 
-//        ref=
-
         FirebaseRecyclerOptions<ShortPost> options=
                 new FirebaseRecyclerOptions.Builder<ShortPost>()
                 .setQuery(query, ShortPost.class).build();
@@ -77,6 +71,7 @@ public class ShortParaMenu extends Fragment {
             protected void onBindViewHolder(@NonNull ShortMenuHolders holder, int position, @NonNull ShortPost post) {
 
                 holder.content.setText(post.content);
+                holder.date.setText(longToTime(post.date));
                 if(post.img_url!=null){
                     //Glide.with(holder.itemView.getContext()).load(post.img_url).into(holder.imageView);
                     holder.imageView.setVisibility(View.VISIBLE);
@@ -89,11 +84,24 @@ public class ShortParaMenu extends Fragment {
             @Override
             public ShortMenuHolders onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.menu_for_short_para, parent, false);
+                        .inflate(R.layout.item_for_short_para, parent, false);
                 return new ShortMenuHolders(view);
             }
         };
         mRecycler.setAdapter(adapter);
+    }
+
+    public String longToTime(long time){
+        long diff = (System.currentTimeMillis() - time)/(1000*60);  //minute difference
+        if(diff<60){
+            return diff+"분 전";
+        }else if(diff<60*12){
+            return diff/60 + "시간 전";
+        } else {
+            Date date = new Date(time);
+            Format format = new SimpleDateFormat("MM월 dd일");
+            return format.format(date);
+        }
     }
 
     @Override
@@ -118,7 +126,7 @@ public class ShortParaMenu extends Fragment {
 //
 //    @Override
 //    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-//        View v = inflater.inflate(R.layout.activity_short_para_menu, container);
+//        View v = inflater.inflate(R.layout.short_para_menu, container);
 //        menuRecyclerView=v.findViewById(R.id.short_menu_recycler);
 //        list = new ArrayList<>();
 //        ref= FirebaseDatabase.getInstance().getReference().child("shortPosts");
@@ -164,6 +172,7 @@ class ShortMenuHolders extends RecyclerView.ViewHolder{
     public TextView content;
     public TextView showMore;
     public ImageView imageView;
+    public TextView date;
 
 
     public ShortMenuHolders(@NonNull View itemView) {
@@ -171,6 +180,8 @@ class ShortMenuHolders extends RecyclerView.ViewHolder{
         imageView = itemView.findViewById(R.id.menu_short_imageView);
         content=itemView.findViewById(R.id.menu_short_textView);
         showMore=itemView.findViewById(R.id.menu_short_showMore);
+        date=itemView.findViewById(R.id.menu_short_date);
+
     }
 }
 //
@@ -185,7 +196,7 @@ class ShortMenuHolders extends RecyclerView.ViewHolder{
 //    @Override
 //    public ShortMenuHolders onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 //        View view = LayoutInflater.from(parent.getContext())
-//                .inflate(R.layout.menu_for_short_para, parent, false);
+//                .inflate(R.layout.item_for_short_para, parent, false);
 //        return new ShortMenuHolders(view);
 //    }
 //

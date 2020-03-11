@@ -12,11 +12,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.example.myapplication.Post.DiaryActivity;
-import com.example.myapplication.Post.DiaryMenuViewHolder;
+import com.example.myapplication.Post.LongMenuViewHolder;
+import com.example.myapplication.Post.ShowLongPost;
 import com.example.myapplication.Post.BlogPost;
 import com.example.myapplication.R;
 import com.google.firebase.database.DataSnapshot;
@@ -41,11 +40,11 @@ public class LongParaMenu extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        final View v = inflater.inflate(R.layout.long_para_menu, container);
+        final View v = inflater.inflate(R.layout.long_para_menu, container, false);
         menuRecyclerView= v.findViewById(R.id.diary_menu_recyclerView);
 
 
-        return super.onCreateView(inflater, container, savedInstanceState);
+        return v;
     }
 
     @Override
@@ -79,7 +78,7 @@ public class LongParaMenu extends Fragment {
 }
 
 
-class DiaryMenuAdapter extends RecyclerView.Adapter<DiaryMenuViewHolder>{
+class DiaryMenuAdapter extends RecyclerView.Adapter<LongMenuViewHolder>{
 
     private List<BlogPost> list;
 
@@ -90,15 +89,15 @@ class DiaryMenuAdapter extends RecyclerView.Adapter<DiaryMenuViewHolder>{
 
 
     @Override
-    public DiaryMenuViewHolder onCreateViewHolder(final ViewGroup parent, int i) {
+    public LongMenuViewHolder onCreateViewHolder(final ViewGroup parent, int i) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.diary_menu_recyclerview_item, parent,false);
+                .inflate(R.layout.item_for_long_para, parent,false);
 
-        return new DiaryMenuViewHolder(view);
+        return new LongMenuViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final DiaryMenuViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final LongMenuViewHolder holder, final int position) {
         final BlogPost vo = list.get(position);
         holder.title.setText(vo.title);
         holder.content.setText(vo.content);
@@ -106,7 +105,7 @@ class DiaryMenuAdapter extends RecyclerView.Adapter<DiaryMenuViewHolder>{
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent postIntent = new Intent(holder.itemView.getContext(), DiaryActivity.class);
+                Intent postIntent = new Intent(holder.itemView.getContext(), ShowLongPost.class);
                 postIntent.putExtra("key", vo.key);
                 holder.itemView.getContext().startActivity(postIntent);
             }

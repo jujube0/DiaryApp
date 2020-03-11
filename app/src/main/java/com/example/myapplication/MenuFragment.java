@@ -59,7 +59,7 @@ public class MenuFragment extends Fragment {
 
 }
 
-class Diary_MenuAdapter extends RecyclerView.Adapter<DiaryMenuViewHolder> {
+class Diary_MenuAdapter extends RecyclerView.Adapter<LongMenuViewHolder> {
 
     private List<DriveDiaryMenu> list;
 
@@ -70,15 +70,15 @@ class Diary_MenuAdapter extends RecyclerView.Adapter<DiaryMenuViewHolder> {
 
 
     @Override
-    public DiaryMenuViewHolder onCreateViewHolder(ViewGroup parent, int i) {
+    public LongMenuViewHolder onCreateViewHolder(ViewGroup parent, int i) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.diary_menu_recyclerview_item, parent, false);
+                .inflate(R.layout.item_for_long_para, parent, false);
 
-        return new DiaryMenuViewHolder(view);
+        return new LongMenuViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull DiaryMenuViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull LongMenuViewHolder holder, int position) {
         final DriveDiaryMenu vo = list.get(position);
 
         holder.title.setText(vo.title);

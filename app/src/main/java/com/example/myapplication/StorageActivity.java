@@ -24,31 +24,8 @@ public class StorageActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_storage);
-        btn1=findViewById(R.id.btn1);
-        btn2=findViewById(R.id.btn2);
-        frameLayout=findViewById(R.id.framelayout);
 
-
-        btn1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switchFragment();
-            }
-        });
 
     }
 
-    private void switchFragment() {
-        Fragment fr;
-        if(isShort){
-            fr = new ShortParaMenu();
-        }else {
-            fr=new LongParaMenu();
-        }
-        isShort=(isShort)?false:true;
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fm.beginTransaction();
-        fragmentTransaction.add(R.id.framelayout, fr);
-        fragmentTransaction.commit();
-    }
 }

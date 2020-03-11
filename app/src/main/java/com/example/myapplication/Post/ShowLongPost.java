@@ -4,20 +4,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.provider.MediaStore;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.example.myapplication.Post.CommentActivity;
 import com.example.myapplication.R;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -25,15 +18,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-public class DiaryActivity extends AppCompatActivity implements View.OnClickListener {
+public class ShowLongPost extends AppCompatActivity implements View.OnClickListener {
 
     private String key;
     private LinearLayout layout;
@@ -89,21 +74,22 @@ public class DiaryActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void addImageView(String url) {
-      /*  ImageView imageView = new ImageView(DiaryActivity.this);
+      /*  ImageView imageView = new ImageView(ShowLongPost.this);
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Glide.with(DiaryActivity.this).load(url).into(imageView);
+        Glide.with(ShowLongPost.this).load(url).into(imageView);
         layout.addView(imageView, layoutParams);*/
 
-      ImageView imageView = new ImageView(DiaryActivity.this);
+      ImageView imageView = new ImageView(ShowLongPost.this);
+      imageView.setVisibility(View.VISIBLE);
       imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
       imageView.setLayoutParams(layoutParams);
-      Glide.with(DiaryActivity.this).load(url).into(imageView);
+      Glide.with(ShowLongPost.this).load(url).into(imageView);
       layout.addView(imageView);
     }
 
 
     private void addTextView(String content) {
-        TextView textView = new TextView(DiaryActivity.this);
+        TextView textView = new TextView(ShowLongPost.this);
         textView.setText(content);
         layout.addView(textView, layoutParams);
     }
