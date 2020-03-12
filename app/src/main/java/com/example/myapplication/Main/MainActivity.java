@@ -1,12 +1,13 @@
 package com.example.myapplication.Main;
 
 
-import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,7 +18,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
-import com.example.myapplication.InformationActivity;
+import com.bumptech.glide.Glide;
 import com.example.myapplication.Login.Login;
 import com.example.myapplication.Post.Add_long_para;
 import com.example.myapplication.R;
@@ -25,6 +26,11 @@ import com.example.myapplication.shortPost.Add_short_para;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -42,6 +48,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private CircleImageView mainImageView;
     private TextView main_textView_name;
     private TextView main_logout;
+    private TextView main_info;
  //   private TextView showShortPara;
   //  private TextView showLongPara;
     private Button writeLongPara;
@@ -66,6 +73,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         main_textView_name.setOnClickListener(this);
         main_logout = findViewById(R.id.main_logout);
         main_logout.setOnClickListener(this);
+        main_info=findViewById(R.id.main_profile_info);
 
         viewPager = findViewById(R.id.viewPager);
 
@@ -144,8 +152,36 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             toLogin();
         }else{
             main_textView_name.setText(user.getDisplayName());
+
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("userInfo");
+            ref.child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    String user_info = dataSnapshot.getValue(String.class);
+                    main_info.setText(user_info);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+            setImage(mainImageView, user.getPhotoUrl());
+
         }
     }
+
+    private void setImage(CircleImageView mainImageView, Uri photoUrl) {
+       Glide.with(MainActivity.this).load(photoUrl.toString()).into(mainImageView);
+       /* try {
+            final Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), photoUrl);
+            mainImageView.setImageBitmap(bitmap);
+        }catch (Exception e){
+
+            Toast.makeText(this, "error: "+e , Toast.LENGTH_LONG).show();
+        }*/
+    }
+
     public void toLogin(){
         Intent LoginIntent = new Intent(MainActivity.this, Login.class);
         startActivity(LoginIntent);

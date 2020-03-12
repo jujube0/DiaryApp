@@ -69,7 +69,7 @@ public class Add_long_para extends AppCompatActivity implements View.OnClickList
 
     public static final int PICK_IMAGE = 1;
     // image저장 path
-    private String imagePath;
+ //  private String imagePath;
 
     StorageReference storageReference;
     FirebaseStorage storage;
@@ -296,7 +296,7 @@ public class Add_long_para extends AppCompatActivity implements View.OnClickList
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE){
-            imagePath = getPath(data.getData());
+            //imagePath = getPath(data.getData());
 // final Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
             StorageReference storageReference = storage.getReferenceFromUrl("gs://myapplication-f3f26.appspot.com");
 

@@ -45,8 +45,8 @@ public class LongParaMenu extends Fragment {
     TextView emptyMessage;
 
     private FirebaseRecyclerAdapter<BlogPost, LongMenuViewHolder> adapter;
-    private RecyclerView mRecycler;
-    private LinearLayoutManager mManager;
+  /*  private RecyclerView mRecycler;
+    private LinearLayoutManager mManager;*/
 
 
     private List<BlogPost> list = new ArrayList<>();
@@ -70,7 +70,7 @@ public class LongParaMenu extends Fragment {
         mRecycler.setLayoutManager(mManager);
     }
 */
-    private void fetch() {
+    /*private void fetch() {
         String user_id = FirebaseAuth.getInstance().getCurrentUser().getUid();
         Query query =FirebaseDatabase.getInstance().getReference().child("blogPosts");
 
@@ -106,13 +106,13 @@ public class LongParaMenu extends Fragment {
                         holder.itemView.getContext().startActivity(postIntent);
                     }
                 });
-/*                holder.content.setText(post.content);
+*//*                holder.content.setText(post.content);
                 if(post.img_url!=null){
                     //Glide.with(holder.itemView.getContext()).load(post.img_url).into(holder.imageView);
                     holder.imageView.setVisibility(View.VISIBLE);
                     Glide.with(holder.itemView.getContext()).load(post.img_url).placeholder(android.R.drawable.progress_indeterminate_horizontal).
                             error(android.R.drawable.stat_notify_error).into(holder.imageView);
-                }*/
+                }*//*
             }
 
             @NonNull
@@ -124,7 +124,7 @@ public class LongParaMenu extends Fragment {
             }
         };
         mRecycler.setAdapter(adapter);
-    }
+    }*/
 
     public String longToTime(long time){
         Date date = new Date(time);
@@ -202,6 +202,7 @@ class DiaryMenuAdapter extends RecyclerView.Adapter<LongMenuViewHolder>{
         final BlogPost vo = list.get(position);
         holder.title.setText(vo.title);
         holder.content.setText(vo.content);
+        holder.num_comment.setText(""+vo.comment_num);
         Glide.with(holder.itemView.getContext()).load(vo.img_url).into(holder.imageView);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

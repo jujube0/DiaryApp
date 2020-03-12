@@ -14,6 +14,7 @@ public class BlogPost {
     public String title;
     public String category;
 
+    public int comment_num = 0;
     public String img_url;
     public String content;
     public int type;

@@ -13,6 +13,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.example.myapplication.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -28,10 +30,13 @@ import java.util.HashMap;
 
 public class CommentAdapter extends BaseExpandableListAdapter {
     Context context;
+ //   String user_id;
+    FirebaseUser user;
+    String user_name;
     String user_id;
-
     ArrayList<Comment> parentData;
     HashMap<Integer, ArrayList<Comment>> childData;
+    String key;
     private OnRecommentListener mlistener;
     public interface OnRecommentListener {
         void onRecomment(View v, String name, int parent_id, int group_pos);
@@ -40,13 +45,16 @@ public class CommentAdapter extends BaseExpandableListAdapter {
 
 
 
-    public CommentAdapter(Context context, OnRecommentListener mlistener, String user_id, ArrayList<Comment> parentData,HashMap<Integer, ArrayList<Comment>> childData) {
+    public CommentAdapter(Context context, OnRecommentListener mlistener, FirebaseUser user, ArrayList<Comment> parentData,HashMap<Integer, ArrayList<Comment>> childData, String key) {
         super();
         this.context = context;
-        this.user_id = user_id;
+        this.user = user;
         this.mlistener=mlistener;
         this.parentData = parentData;
         this.childData = childData;
+        user_name=user.getDisplayName();
+        user_id=user.getUid();
+        this.key=key;
     }
 
     @Override
@@ -56,7 +64,8 @@ public class CommentAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getChildrenCount(int groupPosition) { // childeren 수
-        return childData.get((int)getGroupId(groupPosition)).size();
+      //  int parent_id = parentData.get(groupPosition).comment_id;
+        return childData.get(getParentId(groupPosition)).size();
     }
 
     @Override
@@ -66,7 +75,7 @@ public class CommentAdapter extends BaseExpandableListAdapter {
 
     @Override // get information of player
     public Comment getChild(int groupPosition, int childPosition) {
-               return childData.get(groupPosition).get(childPosition);
+               return childData.get(getParentId(groupPosition)).get(childPosition);
     }
 
     @Override
@@ -74,7 +83,9 @@ public class CommentAdapter extends BaseExpandableListAdapter {
 
         return parentData.get(groupPosition).comment_id;
     }
-
+    private int getParentId(int groupPosition){
+        return parentData.get(groupPosition).comment_id;
+    }
 
     @Override
     public long getChildId(int groupPosition, int childPosition) {
@@ -105,11 +116,12 @@ public class CommentAdapter extends BaseExpandableListAdapter {
         }
         final Comment co = getGroup(groupPosition);
 
-        viewHolder.name.setText(co.author_account);
+        viewHolder.name.setText(co.user_name);
         viewHolder.comment.setText(co.content);
         viewHolder.datetime.setText(convertTime(co.date));
         viewHolder.expandBtn.setText("답글보기(" + getChildrenCount(groupPosition)+")"); //setting
-        if(co.author_account.equals(user_id)){
+        //viewHolder.expandBtn.setText("답글보기("+childData.get(groupPosition).size());
+        if(co.user_id.equals(user.getUid())){
             viewHolder.edit_btn.setVisibility(View.VISIBLE);
         }else{
             viewHolder.edit_btn.setVisibility(View.INVISIBLE);
@@ -119,20 +131,19 @@ public class CommentAdapter extends BaseExpandableListAdapter {
             @Override
             public void onClick(View view) {
                 if(isExpanded) ((ExpandableListView) parent).collapseGroup(groupPosition);
-                else if(!(childData.get(co.comment_id)==null))((ExpandableListView) parent).expandGroup(groupPosition, true);
+                else if(!(childData.get(co.comment_id).isEmpty()))((ExpandableListView) parent).expandGroup(groupPosition, true);
             }
         });
         viewHolder.add_recomment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Comment co = parentData.get(groupPosition);
-                String author_account = co.author_account;
-                mlistener.onRecomment(v, author_account, parentData.get(groupPosition).comment_id, groupPosition);
+                mlistener.onRecomment(v, co.user_name, parentData.get(groupPosition).comment_id, groupPosition);
             }
         });
         //edit_btn에 click listener 등록하여 선택된 데이터를 삭제한다.
-        //deleteComment(viewHolder.edit_btn, co.comment_id);
-        viewHolder.edit_btn.setOnClickListener(new View.OnClickListener() {
+        deleteComment(viewHolder.edit_btn, co.comment_id);
+       /* viewHolder.edit_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -142,7 +153,7 @@ public class CommentAdapter extends BaseExpandableListAdapter {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
-                        Query query = ref.child("comments").orderByChild("comment_id").equalTo(co.comment_id);
+                        Query query = ref.child("comments").child(user_id).child(key).orderByChild("comment_id").equalTo(co.comment_id);
                         query.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -167,7 +178,7 @@ public class CommentAdapter extends BaseExpandableListAdapter {
                 AlertDialog alertDialog = builder.create();
                 alertDialog.show();
             }
-        });;
+        });;*/
         return convertView;
     }
 
@@ -189,13 +200,14 @@ public class CommentAdapter extends BaseExpandableListAdapter {
         }
         if(!(parentData.get(groupPosition)==null)){
             final Comment co = getChild(groupPosition, childPosition);
-            viewHolder.name.setText(co.author_account);
+            viewHolder.name.setText(co.user_name);
             viewHolder.comment.setText(co.content);
             viewHolder.datetime.setText(convertTime(co.date));
+
             deleteComment(viewHolder.edit_btn, co.comment_id);
 
             // 댓글 등록한 name과 본인 이름이 같은 경우 삭제 버튼 활성화
-            if(co.author_account.equals(user_id)){
+            if(co.user_id.equals(user.getUid())){
                 viewHolder.edit_btn.setVisibility(View.VISIBLE);
             }else{
                 viewHolder.edit_btn.setVisibility(View.INVISIBLE);
@@ -220,12 +232,14 @@ public class CommentAdapter extends BaseExpandableListAdapter {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
-                        Query query = ref.child("comments").orderByChild("comment_id").equalTo(comment_id);
+                    //    Query query = ref.child("comments").orderByChild("comment_id").equalTo(comment_id);
+                        Query query = ref.child("comments").child(user_id).child(key).orderByChild("comment_id").equalTo(comment_id);
                         query.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                dataSnapshot.getRef().removeValue();
-                                notifyDataSetChanged();
+                                for(DataSnapshot snapshot:dataSnapshot.getChildren()){
+                                    snapshot.getRef().removeValue();
+                                }
                             }
 
                             @Override

@@ -19,11 +19,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.auth.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,20 +35,23 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
 
     //delete가 안됨 시발; delete 후 화면 새로고침 안되고, 삭제하면 다같이 삭제됨. child added 후 expand되는 것도 안됨 하
 
-    ExpandableListView comment_listView;
-    Button add_comment;
-    EditText comment_text;
-    RelativeLayout comment_layout;
-    Button toDiary;
+    private String key;
+    private ExpandableListView comment_listView;
+    private Button add_comment;
+    private EditText comment_text;
+    private RelativeLayout comment_layout;
+    private Button toDiary;
+    private FirebaseUser user;
+    private TextView delete_comment;
+    private TextView recomment_info;
+    private NestedScrollView scrollView;
+    private String user_id;
+    private String user_name;
+    private int comment_num;
+    private DatabaseReference ref;
 
-    TextView delete_comment;
-    TextView recomment_info;
-    NestedScrollView scrollView;
-    String name;
-    int comment_num;
-
-    ArrayList<Comment> parentData = new ArrayList<>();
-    HashMap<Integer, ArrayList<Comment>> childData = new HashMap<>();
+    ArrayList<Comment> parentData;
+    HashMap<Integer, ArrayList<Comment>> childData;
 
 
 
@@ -64,10 +70,25 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
         comment_layout = findViewById(R.id.diary_comment_layout_recomment_info);
         recomment_info=findViewById(R.id.diary_comment_recomment_info);
         scrollView=findViewById(R.id.diary_comment_scrollView);
-        name = getResources().getString(R.string.id);
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        user_id= user.getUid();
+        user_name=user.getDisplayName();
+        parentData=new ArrayList<>();
+        childData=new HashMap<>();
+
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Intent intent = getIntent();
+        key = intent.getStringExtra("key");
+     //   comment_num=intent.getIntExtra("comment_num", 0);
 
         //Create list
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("comments");
+        comment_num=0;
+        ref = FirebaseDatabase.getInstance().getReference().child("comments").child(user_id).child(key);
         ref.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
@@ -81,7 +102,6 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
             }
 
             @Override
@@ -94,33 +114,34 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
 
             }
         });
-
-
-
-
         comment_listView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 return true;
             }
         });
-
-
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // 댓글 개수를 넣어주기
+        DatabaseReference postRef = FirebaseDatabase.getInstance().getReference().child("blogPosts").child(user_id).child(key);
+        postRef.child("0").child("comment_num").setValue(comment_num);
+    }
+
     @Override
     public void onClick(View v) {
         if(v == add_comment){
-            DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
-
+            // 대댓글이 아니면,
             if(comment_layout.getVisibility()==View.GONE){
                 String content = comment_text.getText().toString();
 
-
                 if(!content.equals("")) {
-
-                    Comment c = new Comment(comment_num, name, content, System.currentTimeMillis());
-                    ref.child("comments").push().setValue(c);
-                    comment_num++;
+                    //int comment_id, String user_id, String user_name, String content, long date
+                    Comment c = new Comment(comment_num, user_id, user_name, content, System.currentTimeMillis());
+                    ref.push().setValue(c);
+                  //  comment_num++;
 
                     comment_text.setText(null);
                     comment_text.clearFocus();
@@ -135,6 +156,7 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
                     });
 
                 }
+                //대댓글이면,
             }else{
                 String content = comment_text.getText().toString();
 
@@ -144,9 +166,8 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
 
                     int parent_id = value.get(0);
                     int parent_pos = value.get(1);
-                    Comment c = new Comment(comment_num, name, content, System.currentTimeMillis(), parent_id);
-                    ref.child("comments").push().setValue(c);
-                    comment_num++;
+                    Comment c = new Comment(comment_num, user_id, user_name, content, System.currentTimeMillis(), parent_id);
+                    ref.push().setValue(c);
 
                     comment_text.setText(null);
                     comment_listView.expandGroup(parent_pos); // 입력이 완료되면 입력창의 text를 지우고 parent의 댓글창을 엶
@@ -154,10 +175,9 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
 
                 }
             }
-
+        //본문보기
         }else if(v==toDiary){
-            Intent intent = new Intent(this, ShowLongPost.class);
-            startActivity(intent);
+            finish();
         }
     }
 
@@ -197,8 +217,9 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
         }else{
             childData.get(co.parent_id).add(co);
         }
-
-        CommentAdapter adapter = new CommentAdapter(CommentActivity.this, CommentActivity.this, name, parentData, childData);
+        //Context context, OnRecommentListener mlistener, FirebaseUser user, ArrayList<Comment> parentData,HashMap<Integer, ArrayList<Comment>> childData
+        CommentAdapter adapter = new CommentAdapter(CommentActivity.this, CommentActivity.this, user, parentData, childData, key);
         comment_listView.setAdapter(adapter);
+        comment_num++;
     }
 }

@@ -119,10 +119,10 @@
                     android:id="@+id/diary_text_comment_num"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="10"
-                    android:layout_toRightOf="@+id/diary_image_comment"
                     android:layout_alignBaseline="@+id/diary_image_heart"
-                    android:layout_marginLeft="3dp"/>
+                    android:layout_marginLeft="3dp"
+                    android:layout_toRightOf="@+id/diary_image_comment"
+                    android:text="0" />
                 <ImageButton
                     android:id="@+id/diary_button_connect"
                     android:layout_width="wrap_content"

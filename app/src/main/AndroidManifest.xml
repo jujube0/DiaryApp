@@ -76,7 +76,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".InformationActivity">
+        <activity android:name=".Main.InformationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

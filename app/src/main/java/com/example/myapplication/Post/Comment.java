@@ -2,10 +2,13 @@ package com.example.myapplication.Post;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.auth.User;
 
 public class Comment {
-    // 댓글 쓴 user 의 email
-    public String author_account;
+    // 댓글 쓴 user 의 id
+    public String user_id;
+    // user name
+    public String user_name;
     //댓글의 _id
     public int comment_id;
     // 댓글 내용
@@ -23,17 +26,19 @@ public class Comment {
 
     public Comment(){}
 
-    public Comment(int comment_id, String author_account, String content, long date) {
+    public Comment(int comment_id, String user_id, String user_name, String content, long date) {
         this.comment_id=comment_id;
-        this.author_account=author_account;
         this.content = content;
+        this.user_id=user_id;
+        this.user_name=user_name;
         this.date = date;
         this.parent_id = -1;
 
     }
-    public Comment(int comment_id, String author_account, String content, long date, int parent_id) {
+    public Comment(int comment_id, String user_id,String user_name, String content, long date, int parent_id) {
         this.comment_id=comment_id;
-        this.author_account=author_account;
+        this.user_id=user_id;
+        this.user_name=user_name;
         this.content = content;
         this.date = date;
         this.parent_id = parent_id;

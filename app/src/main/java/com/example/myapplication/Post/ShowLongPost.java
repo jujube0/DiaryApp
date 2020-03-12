@@ -31,6 +31,7 @@ public class ShowLongPost extends AppCompatActivity implements View.OnClickListe
     private ImageView commentBtn;
     private TextView category;
     private TextView title;
+    private TextView comment_num;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +39,8 @@ public class ShowLongPost extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_diary);
         commentBtn = findViewById(R.id.diary_image_comment);
         commentBtn.setOnClickListener(this);
+        comment_num=findViewById(R.id.diary_text_comment_num);
+        comment_num.setOnClickListener(this);
         layout = findViewById(R.id.diary_layout_content);
 
         textParams = new LinearLayout.LayoutParams(
@@ -45,7 +48,6 @@ public class ShowLongPost extends AppCompatActivity implements View.OnClickListe
                 LinearLayout.LayoutParams.MATCH_PARENT
         );
         //value를 dp로 바꾸는 법
-
         imageParams = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, toDp(350)
         );
@@ -66,6 +68,7 @@ public class ShowLongPost extends AppCompatActivity implements View.OnClickListe
                         if (p.type == BlogPost.TITLE) {
                             title.setText(p.title);
                             category.setText(p.category);
+                            comment_num.setText(""+p.comment_num);
                         }else if(p.type == BlogPost.TEXT){
                             addTextView(p.content);
                         }else if(p.type == BlogPost.IMAGE){
@@ -105,8 +108,10 @@ public class ShowLongPost extends AppCompatActivity implements View.OnClickListe
     }
     @Override
     public void onClick(View view) {
-        if(view == commentBtn){
+        if(view == commentBtn||view==comment_num){
             Intent intent = new Intent(this, CommentActivity.class);
+            intent.putExtra("key", key);
+      //      intent.putExtra("comment_num", comment_num);
             startActivity(intent);
         }
     }
